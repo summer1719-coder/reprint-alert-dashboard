@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>庫存追蹤｜國小參考書・版版補充</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+:root{
+  --bg:#F1F3F7;--sur:#fff;--brd:#E3E6ED;
+  --txt:#1A2030;--sub:#64748B;--lgt:#94A3B8;
+  --red:#DC2626;--rbg:#FEF2F2;--rbd:#FECACA;
+  --org:#D97706;--obg:#FFFBEB;--obd:#FDE68A;
+  --grn:#059669;--gbg:#ECFDF5;--gbd:#6EE7B7;
+  --blu:#1D4ED8;--bbg:#EFF6FF;--bbd:#93C5FD;
+  --pur:#7C3AED;--pbg:#F5F3FF;--pbd:#C4B5FD;
+  --cya:#0369A1;--cbg:#E0F2FE;
+  --hdr:#1E2538;--acc:#3B82F6;
+  --v31:#7C3AED;--v41:#1D4ED8;--v51:#065F46;--v21:#92400E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--txt);font-size:14px;min-height:100vh}
+
+.hdr{background:var(--hdr);border-bottom:3px solid var(--acc);padding:11px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:300}
+.hdr-title{font-size:16px;font-weight:700;color:#fff}
+.hdr-sub{font-size:11px;color:#94A3B8;margin-top:1px}
+.hdr-btns{display:flex;gap:7px;flex-wrap:wrap}
+.hbtn{border:none;padding:6px 13px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.hbtn:hover{opacity:.82}
+.hbtn-inv{background:var(--acc);color:#fff}
+.hbtn-rev{background:#6D28D9;color:#fff}
+#fInv,#fRev{display:none}
+
+/* TABS */
+.tabs{background:var(--sur);border-bottom:2px solid var(--brd);display:flex;padding:0 24px;position:sticky;top:51px;z-index:200}
+.tab{padding:11px 22px;font-size:14px;font-weight:700;cursor:pointer;border:none;background:none;font-family:inherit;
+  color:var(--sub);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;display:flex;align-items:center;gap:6px}
+.tab:hover{color:var(--txt)}
+.tab.ref{color:var(--org);border-bottom-color:var(--org)}
+.tab.nsp{color:var(--cya);border-bottom-color:var(--cya)}
+.tab.sup{color:var(--grn);border-bottom-color:var(--grn)}
+.tcnt{font-size:10px;padding:1px 6px;border-radius:10px;font-weight:700}
+.tab.ref .tcnt{background:var(--obg);color:var(--org)}
+.tab.nsp .tcnt{background:var(--cbg);color:var(--cya)}
+.tab.sup .tcnt{background:var(--gbg);color:var(--grn)}
+
+/* LEGEND */
+.legend{background:#FFFAF0;border-bottom:1px solid var(--obd);padding:6px 24px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--sub)}
+.li{display:flex;align-items:center;gap:4px}
+
+/* SORT BAR */
+.srtbar{background:var(--sur);border-bottom:1px solid var(--brd);padding:7px 24px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.srt-lbl{font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap}
+.srt-btns{display:flex;border:1px solid var(--brd);border-radius:7px;overflow:hidden}
+.srtb{padding:5px 14px;font-size:12px;font-weight:500;cursor:pointer;border:none;
+  background:#fff;color:var(--sub);font-family:inherit;transition:all .15s;
+  border-right:1px solid var(--brd);white-space:nowrap}
+.srtb:last-child{border-right:none}
+.srtb:hover{background:#F1F5F9;color:var(--txt)}
+.srtb.on{background:var(--hdr);color:#fff;font-weight:700}
+
+/* CTRL */
+.ctrl{background:var(--sur);border-bottom:1px solid var(--brd);padding:8px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ctrl-lbl{font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap}
+.thbox{display:flex;align-items:center;gap:5px;border:1px solid var(--brd);border-radius:7px;padding:5px 10px;background:#FAFBFD}
+.thbox label{font-size:11px;font-weight:700;color:var(--sub)}
+.thbox input{width:62px;padding:3px 5px;border:1px solid var(--brd);border-radius:4px;font-size:12px;font-family:inherit;text-align:center}
+.thbox input:focus{outline:none;border-color:var(--acc)}
+.ap{padding:4px 9px;border-radius:4px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit;color:#fff}
+
+/* FILTER BAR */
+.fbar{background:var(--sur);border-bottom:1px solid var(--brd);padding:7px 24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.fb{padding:4px 12px;border-radius:20px;border:1px solid var(--brd);background:#fff;font-size:12px;cursor:pointer;font-family:inherit;color:var(--sub);transition:all .15s;white-space:nowrap}
+.fb:hover{border-color:var(--acc);color:var(--acc)}
+.fb.on{background:var(--hdr);color:#fff;border-color:var(--hdr);font-weight:700}
+.fsep{color:var(--brd);font-size:16px}
+.srch{padding:5px 10px;border:1px solid var(--brd);border-radius:6px;font-size:13px;font-family:inherit;width:180px;outline:none;margin-left:auto}
+.srch:focus{border-color:var(--acc)}
+
+/* SEM */
+.sem{display:flex;align-items:center;gap:8px;margin-left:auto}
+.sem-btns{display:flex;border:1px solid var(--brd);border-radius:7px;overflow:hidden}
+.sb{padding:4px 14px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:#fff;color:var(--sub);font-family:inherit;transition:all .15s;border-right:1px solid var(--brd)}
+.sb:last-child{border-right:none}
+.sb.up{background:var(--blu);color:#fff}
+.sb.dn{background:var(--grn);color:#fff}
+.sb.all{background:var(--hdr);color:#fff}
+
+/* MAIN */
+.main{padding:16px 24px}
+.panel{display:none}.panel.active{display:block}
+
+/* SUBJECT CARDS */
+.subj-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.scard{background:var(--sur);border:2px solid var(--brd);border-radius:10px;padding:12px 16px;cursor:pointer;
+  transition:all .15s;min-width:110px;flex:1;max-width:170px;text-align:center;user-select:none}
+.scard:hover{border-color:var(--acc);transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08)}
+.scard.a-ref{border-color:var(--org);background:var(--obg)}
+.scard.a-nsp{border-color:var(--cya);background:var(--cbg)}
+.scard.a-sup{border-color:var(--grn);background:var(--gbg)}
+.scard-name{font-size:14px;font-weight:700;margin-bottom:6px}
+.scard-stats{display:flex;justify-content:center;gap:5px;flex-wrap:wrap}
+.ss{font-size:11px;font-weight:700;padding:2px 6px;border-radius:8px}
+.ss-r{background:var(--rbg);color:var(--red);border:1px solid var(--rbd)}
+.ss-o{background:var(--obg);color:var(--org);border:1px solid var(--obd)}
+.ss-g{background:var(--gbg);color:var(--grn);border:1px solid var(--gbd)}
+.ss-p{background:var(--pbg);color:var(--pur);border:1px solid var(--pbd)}
+.scard-tot{font-size:10px;color:var(--lgt);margin-top:4px}
+
+/* TABLE SECTION */
+.tsec{background:var(--sur);border:1px solid var(--brd);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.tsec-hdr{padding:11px 16px;background:#FAFBFD;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:8px}
+.tsec-title{font-size:14px;font-weight:700;flex:1}
+.bdg{font-size:10px;font-weight:700;padding:2px 7px;border-radius:9px}
+.b-r{background:var(--rbg);color:var(--red);border:1px solid var(--rbd)}
+.b-o{background:var(--obg);color:var(--org);border:1px solid var(--obd)}
+.b-p{background:var(--pbg);color:var(--pur);border:1px solid var(--pbd)}
+.b-g{background:#F1F5F9;color:var(--sub);border:1px solid var(--brd)}
+
+table{width:100%;border-collapse:collapse}
+thead th{background:#F8F9FB;font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;
+  letter-spacing:.3px;padding:7px 13px;text-align:left;border-bottom:1px solid var(--brd);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--brd);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#F7F9FC}
+tbody tr.row-alert{background:#FFFBF5}
+tbody tr.row-alert:hover{background:#FFF7ED}
+tbody tr.row-scrap{background:#FFF8F8}
+tbody tr.row-scrap:hover{background:#FFF0F0}
+td{padding:9px 13px;font-size:13px;vertical-align:middle}
+.pn{font-weight:600;line-height:1.4}
+.psku{font-size:10px;color:var(--lgt);font-family:monospace;margin-top:1px}
+.subj-tag{font-size:10px;color:var(--acc);font-weight:700;padding:1px 5px;background:var(--bbg);border-radius:3px;margin-right:5px}
+
+/* version tags */
+.vtag{display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;color:#fff;white-space:nowrap;margin:1px}
+.v31{background:var(--v31)}.v41{background:var(--v41)}.v51{background:var(--v51)}.v21{background:var(--v21)}.vx{background:var(--lgt)}
+.t-scrap{background:#B91C1C!important}.t-mix{background:#059669!important}.t-lim{background:#92400E!important}
+
+/* stock */
+.stk{min-width:120px}
+.sw{display:flex;align-items:center;gap:6px}
+.sn{font-size:15px;font-weight:700;min-width:50px;text-align:right}
+.n-z{color:var(--red)}.n-l{color:var(--org)}.n-o{color:var(--grn)}.n-s{color:var(--red);text-decoration:line-through;opacity:.55}
+.bar{flex:1;height:6px;background:var(--brd);border-radius:3px;overflow:hidden;min-width:40px}
+.bi{height:100%;border-radius:3px}
+.bi-r{background:var(--red)}.bi-o{background:var(--org)}.bi-g{background:var(--grn)}.bi-s{background:var(--red);opacity:.3}
+
+/* threshold */
+.tiw{display:flex;align-items:center;gap:3px}
+.ti{width:54px;padding:2px 4px;border:1px solid var(--brd);border-radius:4px;font-size:11px;font-family:inherit;text-align:center}
+.ti:focus{outline:none;border-color:var(--acc)}
+
+/* pill */
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:11px;white-space:nowrap}
+.p-r{background:var(--rbg);color:var(--red);border:1px solid var(--rbd)}
+.p-o{background:var(--obg);color:var(--org);border:1px solid var(--obd)}
+.p-g{background:var(--gbg);color:var(--grn);border:1px solid var(--gbd)}
+.p-p{background:var(--pbg);color:var(--pur);border:1px solid var(--pbd)}
+.p-s{background:var(--rbg);color:#991B1B;border:1px solid var(--rbd);text-decoration:line-through}
+
+/* expand btn */
+.exp-btn{background:none;border:none;cursor:pointer;font-size:11px;color:var(--acc);padding:2px 6px;border-radius:4px;font-family:inherit;font-weight:600}
+.exp-btn:hover{background:var(--bbg)}
+.vd{display:none;padding:6px 13px 10px 32px;background:#FAFBFD;border-top:1px solid var(--brd)}
+.vd.open{display:block}
+.vd-row{display:flex;align-items:center;gap:10px;padding:4px 0;font-size:12px;border-bottom:1px solid #F1F5F9}
+.vd-row:last-child{border-bottom:none}
+.vd-ver{min-width:60px}
+
+.use{font-size:10px;padding:1px 5px;border-radius:3px}
+.u-s{background:var(--bbg);color:var(--blu)}.u-t{background:var(--pbg);color:var(--pur)}
+.empty{text-align:center;padding:40px;color:var(--lgt);background:var(--sur);border-radius:10px;border:1px solid var(--brd)}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--hdr);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:9999;box-shadow:0 4px 14px rgba(0,0,0,.25);display:none}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-title">📚 國小參考書・版版補充｜庫存追蹤</div>
+    <div class="hdr-sub" id="hdrSub">內建資料：庫存 2026.06.09 ／ 修訂對照 115(一)</div>
+  </div>
+  <div class="hdr-btns">
+    <button class="hbtn hbtn-inv" onclick="document.getElementById('fInv').click()">📂 載入庫存 (.xls)</button>
+    <button class="hbtn hbtn-rev" onclick="document.getElementById('fRev').click()">📋 載入修訂對照表 (.xlsx)</button>
+    <input type="file" id="fInv" accept=".xls,.xlsx,.csv" onchange="loadInv(event)">
+    <input type="file" id="fRev" accept=".xlsx" onchange="loadRev(event)">
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab ref" id="tab-ref" onclick="switchTab('ref')">📖 參考書 <span class="tcnt" id="cnt-ref">—</span></button>
+  <button class="tab" id="tab-nsp" onclick="switchTab('nsp')">📋 非賣品 <span class="tcnt" id="cnt-nsp">—</span></button>
+  <button class="tab" id="tab-sup" onclick="switchTab('sup')">📝 版版補充 <span class="tcnt" id="cnt-sup">—</span></button>
+</div>
+
+<div class="legend">
+  <strong>版次：</strong>
+  <div class="li"><span class="vtag t-scrap" style="font-size:10px">41 🗑</span>報廢</div>
+  <div class="li"><span class="vtag t-mix" style="font-size:10px">41 ✓</span>混用／新版</div>
+  <div class="li"><span class="vtag t-lim" style="font-size:10px">41 ⚠</span>限區</div>
+  <div class="li"><span class="vtag v51" style="font-size:10px">51</span>無標示</div>
+  <div class="li" style="margin-left:8px;color:#92400E">版版：加總可用版次庫存</div>
+</div>
+
+<div class="srtbar">
+  <span class="srt-lbl">排序方式</span>
+  <div class="srt-btns">
+    <button class="srtb on" id="srt-default" onclick="setSort('default',this)">📋 品項順序</button>
+    <button class="srtb" id="srt-asc"     onclick="setSort('asc',this)">📈 庫存 少→多</button>
+    <button class="srtb" id="srt-desc"    onclick="setSort('desc',this)">📉 庫存 多→少</button>
+    <button class="srtb" id="srt-ratio"   onclick="setSort('ratio',this)">⚠ 危險比例 低→高</button>
+  </div>
+  <span style="font-size:11px;color:var(--lgt)">危險比例 = 庫存 ÷ 警戒值，越低越需要加刷</span>
+</div>
+<div class="ctrl">
+  <span class="ctrl-lbl">⚙ 警戒值</span>
+  <div class="thbox" style="border-color:var(--obd);background:var(--obg)">
+    <label style="color:var(--org)">參考書：</label>
+    <input type="number" id="gRef" value="300" min="1" style="border-color:var(--obd)">
+    <span style="font-size:11px;color:var(--sub)">本</span>
+    <button class="ap" style="background:var(--org)" onclick="applyTh('ref')">套用</button>
+  </div>
+  <div class="thbox" style="border-color:var(--obd);background:var(--obg)">
+    <label style="color:var(--cya)">非賣品：</label>
+    <input type="number" id="gNsp" value="100" min="1" style="border-color:var(--obd)">
+    <span style="font-size:11px;color:var(--sub)">本</span>
+    <button class="ap" style="background:var(--cya)" onclick="applyTh('nsp')">套用</button>
+  </div>
+  <div class="thbox" style="border-color:var(--gbd);background:var(--gbg)">
+    <label style="color:var(--grn)">版版補充：</label>
+    <input type="number" id="gSup" value="500" min="1" style="border-color:var(--gbd)">
+    <span style="font-size:11px;color:var(--sub)">本</span>
+    <button class="ap" style="background:var(--grn)" onclick="applyTh('sup')">套用</button>
+  </div>
+  <div class="sem" style="margin-left:auto">
+    <span style="font-size:12px;font-weight:700;color:var(--sub)">學期：</span>
+    <div class="sem-btns">
+      <button class="sb" id="sb-up" onclick="setSem('上學期')">上學期</button>
+      <button class="sb" id="sb-dn" onclick="setSem('下學期')">下學期</button>
+      <button class="sb all" id="sb-all" onclick="setSem('all')">全部</button>
+    </div>
+  </div>
+</div>
+
+<div class="fbar">
+  <button class="fb on" onclick="setF('all',this)">全部</button>
+  <button class="fb" onclick="setF('庫存耗盡',this)">庫存耗盡</button>
+  <button class="fb" onclick="setF('低庫存',this)">低庫存</button>
+  <button class="fb" onclick="setF('正常',this)">正常</button>
+  <button class="fb" onclick="setF('報廢有庫存',this)">⚠ 報廢有庫存</button>
+  <span class="fsep">|</span>
+  <button class="fb" onclick="setF('學用',this)">學用</button>
+  <button class="fb" onclick="setF('教用',this)">教用</button>
+  <input class="srch" id="sq" type="text" placeholder="🔍 搜尋名稱或料號…" oninput="render()">
+</div>
+
+<div class="main">
+  <div class="panel active" id="panel-ref">
+    <div class="subj-row" id="sr-ref"></div>
+    <div id="det-ref"></div>
+  </div>
+  <div class="panel" id="panel-nsp">
+    <div class="subj-row" id="sr-nsp"></div>
+    <div id="det-nsp"></div>
+  </div>
+  <div class="panel" id="panel-sup">
+    <div class="subj-row" id="sr-sup"></div>
+    <div id="det-sup"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const PRODS = [{"sku":"2020100002","name":"國小國語注音習寫簿首冊","subject":"國語","vol":"首","type":"注音習寫簿","usage":"學用","category":"版版補充","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"31","avail":54},{"ver":"41","avail":1897},{"ver":"51","avail":42647}]},{"sku":"2020101000","name":"國小國語１上練習簿","subject":"國語","vol":"1上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":41},{"ver":"41","avail":1636},{"ver":"51","avail":0}]},{"sku":"2020101001","name":"國小國語１上練習簿教師版","subject":"國語","vol":"1上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":2},{"ver":"41","avail":82},{"ver":"51","avail":0}]},{"sku":"2020101002","name":"國小國語１上語文習寫簿","subject":"國語","vol":"1上","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":54},{"ver":"41","avail":2570},{"ver":"51","avail":42615}]},{"sku":"2020101045","name":"國小國語１上重點複習","subject":"國語","vol":"1上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":179},{"ver":"41","avail":2240},{"ver":"51","avail":11000}]},{"sku":"2020101046","name":"國小國語１上重點複習教師版","subject":"國語","vol":"1上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":26},{"ver":"41","avail":506},{"ver":"51","avail":2127}]},{"sku":"2020102000","name":"國小國語１下練習簿","subject":"國語","vol":"1下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":86},{"ver":"51","avail":4999}]},{"sku":"2020102001","name":"國小國語１下練習簿教師版","subject":"國語","vol":"1下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":3},{"ver":"51","avail":1119}]},{"sku":"2020102002","name":"國小國語１下語文習寫簿甲","subject":"國語","vol":"1下","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1357},{"ver":"51","avail":2664}]},{"sku":"2020102003","name":"國小國語１下語文習寫簿乙","subject":"國語","vol":"1下","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1329},{"ver":"51","avail":2745}]},{"sku":"2020102045","name":"國小國語1下重點複習(學用)","subject":"國語","vol":"下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":873},{"ver":"51","avail":2555}]},{"sku":"2020102046","name":"國小國語1下重點複習(教用)","subject":"國語","vol":"下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":845}]},{"sku":"2020103000","name":"國小國語２上練習簿","subject":"國語","vol":"2上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":3686},{"ver":"51","avail":43937}]},{"sku":"2020103001","name":"國小國語２上練習簿教師版","subject":"國語","vol":"2上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":849},{"ver":"51","avail":6522}]},{"sku":"2020103002","name":"國小國語２上語文習寫簿甲","subject":"國語","vol":"2上","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":3172},{"ver":"51","avail":44673}]},{"sku":"2020103003","name":"國小國語２上語文習寫簿乙","subject":"國語","vol":"2上","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":3149},{"ver":"51","avail":44673}]},{"sku":"2020103045","name":"國小國語２上重點複習","subject":"國語","vol":"2上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":4229},{"ver":"51","avail":11000}]},{"sku":"2020103046","name":"國小國語２上重點複習教師版","subject":"國語","vol":"2上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":662},{"ver":"51","avail":3347}]},{"sku":"2020104000","name":"國小國語２下練習簿","subject":"國語","vol":"2下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":5124}]},{"sku":"2020104001","name":"國小國語２下練習簿教師版","subject":"國語","vol":"2下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":789}]},{"sku":"2020104002","name":"國小國語２下語文習寫簿甲","subject":"國語","vol":"2下","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":3974}]},{"sku":"2020104003","name":"國小國語２下語文習寫簿乙","subject":"國語","vol":"2下","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":4002}]},{"sku":"2020104045","name":"國小國語2下重點複習(學用)","subject":"國語","vol":"下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":2389}]},{"sku":"2020104046","name":"國小國語2下重點複習(教用)","subject":"國語","vol":"下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":868}]},{"sku":"2020105000","name":"國小國語３上練習簿","subject":"國語","vol":"3上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":857},{"ver":"51","avail":0}]},{"sku":"2020105001","name":"國小國語３上練習簿教師版","subject":"國語","vol":"3上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020105002","name":"國小國語３上語文習寫簿甲","subject":"國語","vol":"3上","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":633},{"ver":"51","avail":0}]},{"sku":"2020105003","name":"國小國語３上語文習寫簿乙","subject":"國語","vol":"3上","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":633},{"ver":"51","avail":0}]},{"sku":"2020105045","name":"國小國語３上重點複習","subject":"國語","vol":"3上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":959},{"ver":"51","avail":0}]},{"sku":"2020105046","name":"國小國語３上重點複習教師版","subject":"國語","vol":"3上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020106000","name":"國小國語３下練習簿","subject":"國語","vol":"3下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":242},{"ver":"41","avail":1502},{"ver":"51","avail":1463}]},{"sku":"2020106001","name":"國小國語３下練習簿教師版","subject":"國語","vol":"3下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":14},{"ver":"41","avail":54},{"ver":"51","avail":1}]},{"sku":"2020106002","name":"國小國語３下語文習寫簿甲","subject":"國語","vol":"3下","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":304},{"ver":"41","avail":1302},{"ver":"51","avail":1000}]},{"sku":"2020106003","name":"國小國語３下語文習寫簿乙","subject":"國語","vol":"3下","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":254},{"ver":"41","avail":1416},{"ver":"51","avail":1011}]},{"sku":"2020106045","name":"國小國語3下重點複習(學用)","subject":"國語","vol":"下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":122},{"ver":"41","avail":1198},{"ver":"51","avail":3162}]},{"sku":"2020106046","name":"國小國語3下重點複習(教用)","subject":"國語","vol":"下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":81},{"ver":"51","avail":0}]},{"sku":"2020107000","name":"國小國語４上練習簿","subject":"國語","vol":"4上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":88},{"ver":"41","avail":4262},{"ver":"51","avail":30909}]},{"sku":"2020107001","name":"國小國語４上練習簿教師版","subject":"國語","vol":"4上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":393},{"ver":"51","avail":5611}]},{"sku":"2020107002","name":"國小國語４上語文習寫簿甲","subject":"國語","vol":"4上","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":315},{"ver":"41","avail":2924},{"ver":"51","avail":33645}]},{"sku":"2020107003","name":"國小國語４上語文習寫簿乙","subject":"國語","vol":"4上","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":276},{"ver":"41","avail":1746},{"ver":"51","avail":34645}]},{"sku":"2020107045","name":"國小國語４上重點複習","subject":"國語","vol":"4上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":13},{"ver":"41","avail":1386},{"ver":"51","avail":30000}]},{"sku":"2020107046","name":"國小國語４上重點複習教師版","subject":"國語","vol":"4上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":476},{"ver":"51","avail":5048}]},{"sku":"2020108000","name":"國小國語４下練習簿","subject":"國語","vol":"4下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1790},{"ver":"51","avail":3474}]},{"sku":"2020108001","name":"國小國語４下練習簿教師版","subject":"國語","vol":"4下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":11},{"ver":"51","avail":1031}]},{"sku":"2020108002","name":"國小國語４下語文習寫簿甲","subject":"國語","vol":"4下","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":770},{"ver":"51","avail":2880}]},{"sku":"2020108003","name":"國小國語４下語文習寫簿乙","subject":"國語","vol":"4下","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1592},{"ver":"51","avail":1027}]},{"sku":"2020108045","name":"國小國語4下重點複習(學用)","subject":"國語","vol":"下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1987},{"ver":"51","avail":1450}]},{"sku":"2020108046","name":"國小國語4下重點複習(教用)","subject":"國語","vol":"下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020109000","name":"國小國語５上練習簿","subject":"國語","vol":"5上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":4415},{"ver":"51","avail":28887}]},{"sku":"2020109001","name":"國小國語５上練習簿教師版","subject":"國語","vol":"5上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":764},{"ver":"51","avail":5791}]},{"sku":"2020109002","name":"國小國語５上語文習寫簿甲","subject":"國語","vol":"5上","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1973},{"ver":"51","avail":28623}]},{"sku":"2020109003","name":"國小國語５上語文習寫簿乙","subject":"國語","vol":"5上","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1917},{"ver":"51","avail":28623}]},{"sku":"2020109045","name":"國小國語５上重點複習","subject":"國語","vol":"5上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":3005},{"ver":"51","avail":34000}]},{"sku":"2020109046","name":"國小國語５上重點複習教師版","subject":"國語","vol":"5上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":514},{"ver":"51","avail":5233}]},{"sku":"2020110000","name":"國小國語５下練習簿","subject":"國語","vol":"5下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":5168}]},{"sku":"2020110001","name":"國小國語５下練習簿教師版","subject":"國語","vol":"5下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":1013}]},{"sku":"2020110002","name":"國小國語５下語文習寫簿甲","subject":"國語","vol":"5下","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":3599}]},{"sku":"2020110003","name":"國小國語５下語文習寫簿乙","subject":"國語","vol":"5下","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":3599}]},{"sku":"2020110045","name":"國小國語5下重點複習(學用)","subject":"國語","vol":"下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":3931}]},{"sku":"2020110046","name":"國小國語5下重點複習(教用)","subject":"國語","vol":"下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":828}]},{"sku":"2020111000","name":"國小國語６上練習簿","subject":"國語","vol":"6上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020111001","name":"國小國語６上練習簿教師版","subject":"國語","vol":"6上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":244},{"ver":"51","avail":0}]},{"sku":"2020111002","name":"國小國語６上語文習寫簿甲","subject":"國語","vol":"6上","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":589},{"ver":"51","avail":0}]},{"sku":"2020111003","name":"國小國語６上語文習寫簿乙","subject":"國語","vol":"6上","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":589},{"ver":"51","avail":0}]},{"sku":"2020111045","name":"國小國語６上重點複習","subject":"國語","vol":"6上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020111046","name":"國小國語６上重點複習教師版","subject":"國語","vol":"6上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":317},{"ver":"51","avail":0}]},{"sku":"2020112000","name":"國小國語６下練習簿","subject":"國語","vol":"6下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1313},{"ver":"51","avail":1515}]},{"sku":"2020112001","name":"國小國語６下練習簿教師版","subject":"國語","vol":"6下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":188},{"ver":"51","avail":41}]},{"sku":"2020112002","name":"國小國語６下語文習寫簿甲","subject":"國語","vol":"6下","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1058},{"ver":"51","avail":992}]},{"sku":"2020112003","name":"國小國語６下語文習寫簿乙","subject":"國語","vol":"6下","type":"語文習寫簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1118},{"ver":"51","avail":1000}]},{"sku":"2020112045","name":"國小國語6下重點複習(學用)","subject":"國語","vol":"下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":765},{"ver":"51","avail":3248}]},{"sku":"2020112046","name":"國小國語6下重點複習(教用)","subject":"國語","vol":"下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":234},{"ver":"51","avail":916}]},{"sku":"2020501000","name":"國小數學１上練習簿","subject":"數學","vol":"1上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":409},{"ver":"41","avail":1951},{"ver":"51","avail":20736}]},{"sku":"2020501001","name":"國小數學１上練習簿教師版","subject":"數學","vol":"1上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":136},{"ver":"41","avail":28},{"ver":"51","avail":3815}]},{"sku":"2020501045","name":"國小數學１上重點複習","subject":"數學","vol":"1上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":83},{"ver":"41","avail":1408},{"ver":"51","avail":18000}]},{"sku":"2020501046","name":"國小數學１上重點複習教師版","subject":"數學","vol":"1上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":242},{"ver":"41","avail":2},{"ver":"51","avail":3090}]},{"sku":"2020502000","name":"國小數學１下練習簿","subject":"數學","vol":"1下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":2739},{"ver":"51","avail":1523}]},{"sku":"2020502001","name":"國小數學１下練習簿教師版","subject":"數學","vol":"1下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":666},{"ver":"51","avail":0}]},{"sku":"2020502045","name":"國小數學1下重點複習(學用)","subject":"數學","vol":"下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1815},{"ver":"51","avail":1029}]},{"sku":"2020502046","name":"國小數學1下重點複習(教用)","subject":"數學","vol":"下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":11},{"ver":"51","avail":0}]},{"sku":"2020503000","name":"國小數學２上練習簿","subject":"數學","vol":"2上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":2416},{"ver":"51","avail":24736}]},{"sku":"2020503001","name":"國小數學２上練習簿教師版","subject":"數學","vol":"2上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":327},{"ver":"51","avail":4420}]},{"sku":"2020503045","name":"國小數學２上重點複習","subject":"數學","vol":"2上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":2937},{"ver":"51","avail":19000}]},{"sku":"2020503046","name":"國小數學２上重點複習教師版","subject":"數學","vol":"2上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":4290}]},{"sku":"2020504000","name":"國小數學２下練習簿","subject":"數學","vol":"2下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":3570}]},{"sku":"2020504001","name":"國小數學２下練習簿教師版","subject":"數學","vol":"2下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":6}]},{"sku":"2020504045","name":"國小數學2下重點複習(學用)","subject":"數學","vol":"下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":3338}]},{"sku":"2020504046","name":"國小數學2下重點複習(教用)","subject":"數學","vol":"下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":30}]},{"sku":"2020505000","name":"國小數學３上練習簿","subject":"數學","vol":"3上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":678},{"ver":"51","avail":0}]},{"sku":"2020505001","name":"國小數學３上練習簿教師版","subject":"數學","vol":"3上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020505045","name":"國小數學３上重點複習","subject":"數學","vol":"3上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":959},{"ver":"51","avail":0}]},{"sku":"2020505046","name":"國小數學３上重點複習教師版","subject":"數學","vol":"3上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020506000","name":"國小數學３下練習簿","subject":"數學","vol":"3下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":224},{"ver":"41","avail":2510},{"ver":"51","avail":2325}]},{"sku":"2020506001","name":"國小數學３下練習簿教師版","subject":"數學","vol":"3下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":9},{"ver":"51","avail":257}]},{"sku":"2020506045","name":"國小數學3下重點複習(學用)","subject":"數學","vol":"下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":134},{"ver":"41","avail":1494},{"ver":"51","avail":2683}]},{"sku":"2020506046","name":"國小數學3下重點複習(教用)","subject":"數學","vol":"下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":2},{"ver":"41","avail":0},{"ver":"51","avail":914}]},{"sku":"2020507000","name":"國小數學４上練習簿","subject":"數學","vol":"4上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":367},{"ver":"41","avail":2219},{"ver":"51","avail":21736}]},{"sku":"2020507001","name":"國小數學４上練習簿教師版","subject":"數學","vol":"4上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":203},{"ver":"41","avail":401},{"ver":"51","avail":4306}]},{"sku":"2020507045","name":"國小數學４上重點複習","subject":"數學","vol":"4上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":132},{"ver":"41","avail":1086},{"ver":"51","avail":27000}]},{"sku":"2020507046","name":"國小數學４上重點複習教師版","subject":"數學","vol":"4上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":36},{"ver":"41","avail":393},{"ver":"51","avail":5184}]},{"sku":"2020508000","name":"國小數學４下練習簿","subject":"數學","vol":"4下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1324},{"ver":"51","avail":1388}]},{"sku":"2020508001","name":"國小數學４下練習簿教師版","subject":"數學","vol":"4下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":19},{"ver":"51","avail":162}]},{"sku":"2020508045","name":"國小數學4下重點複習(學用)","subject":"數學","vol":"下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":183},{"ver":"51","avail":3129}]},{"sku":"2020508046","name":"國小數學4下重點複習(教用)","subject":"數學","vol":"下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":688}]},{"sku":"2020509000","name":"國小數學５上練習簿","subject":"數學","vol":"5上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":3210},{"ver":"51","avail":29736}]},{"sku":"2020509001","name":"國小數學５上練習簿教師版","subject":"數學","vol":"5上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":728},{"ver":"51","avail":5781}]},{"sku":"2020509045","name":"國小數學５上重點複習","subject":"數學","vol":"5上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":2706},{"ver":"51","avail":36000}]},{"sku":"2020509046","name":"國小數學５上重點複習教師版","subject":"數學","vol":"5上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":7763}]},{"sku":"2020510000","name":"國小數學５下練習簿","subject":"數學","vol":"5下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":3671}]},{"sku":"2020510001","name":"國小數學５下練習簿教師版","subject":"數學","vol":"5下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020510045","name":"國小數學5下重點複習(學用)","subject":"數學","vol":"下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":5385}]},{"sku":"2020510046","name":"國小數學5下重點複習(教用)","subject":"數學","vol":"下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":1306}]},{"sku":"2020511000","name":"國小數學６上練習簿","subject":"數學","vol":"6上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":696},{"ver":"51","avail":0}]},{"sku":"2020511001","name":"國小數學６上練習簿教師版","subject":"數學","vol":"6上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020511045","name":"國小數學６上重點複習","subject":"數學","vol":"6上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":956},{"ver":"51","avail":0}]},{"sku":"2020511046","name":"國小數學６上重點複習教師版","subject":"數學","vol":"6上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020512000","name":"國小數學６下練習簿","subject":"數學","vol":"6下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":724},{"ver":"51","avail":2702}]},{"sku":"2020512001","name":"國小數學６下練習簿教師版","subject":"數學","vol":"6下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":28},{"ver":"51","avail":398}]},{"sku":"2020512045","name":"國小數學6下重點複習(學用)","subject":"數學","vol":"下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1050},{"ver":"51","avail":1460}]},{"sku":"2020512046","name":"國小數學6下重點複習(教用)","subject":"數學","vol":"下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020601000","name":"國小生活１上練習簿","subject":"生活","vol":"1上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":221},{"ver":"41","avail":1210},{"ver":"51","avail":7000}]},{"sku":"2020601001","name":"國小生活１上練習簿教師版","subject":"生活","vol":"1上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":122},{"ver":"41","avail":4},{"ver":"51","avail":1091}]},{"sku":"2020602000","name":"國小生活１下練習簿","subject":"生活","vol":"1下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1616},{"ver":"51","avail":754}]},{"sku":"2020602001","name":"國小生活１下練習簿教師版","subject":"生活","vol":"1下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":91},{"ver":"51","avail":111}]},{"sku":"2020603000","name":"國小生活２上練習簿","subject":"生活","vol":"2上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":554},{"ver":"51","avail":10000}]},{"sku":"2020603001","name":"國小生活２上練習簿教師版","subject":"生活","vol":"2上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":69},{"ver":"51","avail":1481}]},{"sku":"2020604000","name":"國小生活２下練習簿","subject":"生活","vol":"2下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":2691}]},{"sku":"2020604001","name":"國小生活２下練習簿教師版","subject":"生活","vol":"2下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":69}]},{"sku":"2020705000","name":"國小自然３上練習簿","subject":"自然","vol":"3上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":950},{"ver":"51","avail":0}]},{"sku":"2020705001","name":"國小自然３上練習簿教師版","subject":"自然","vol":"3上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020705045","name":"國小自然３上重點複習","subject":"自然","vol":"3上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1063},{"ver":"51","avail":0}]},{"sku":"2020705046","name":"國小自然３上重點複習教師版","subject":"自然","vol":"3上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020706000","name":"國小自然３下練習簿","subject":"自然","vol":"3下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":276},{"ver":"41","avail":778},{"ver":"51","avail":1404}]},{"sku":"2020706001","name":"國小自然３下練習簿教師版","subject":"自然","vol":"3下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":82},{"ver":"41","avail":296},{"ver":"51","avail":0}]},{"sku":"2020706045","name":"國小自然３下重點複習(學用)","subject":"自然","vol":"3下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":318},{"ver":"41","avail":248},{"ver":"51","avail":3726}]},{"sku":"2020706046","name":"國小自然３下重點複習(教用)","subject":"自然","vol":"3下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":79},{"ver":"41","avail":1},{"ver":"51","avail":239}]},{"sku":"2020707000","name":"國小自然４上練習簿","subject":"自然","vol":"4上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":2953},{"ver":"51","avail":24000}]},{"sku":"2020707001","name":"國小自然４上練習簿教師版","subject":"自然","vol":"4上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":609},{"ver":"51","avail":3889}]},{"sku":"2020707045","name":"國小自然４上重點複習","subject":"自然","vol":"4上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":166},{"ver":"41","avail":1907},{"ver":"51","avail":11000}]},{"sku":"2020707046","name":"國小自然４上重點複習教師版","subject":"自然","vol":"4上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":132},{"ver":"51","avail":2972}]},{"sku":"2020708000","name":"國小自然４下練習簿","subject":"自然","vol":"4下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1000},{"ver":"51","avail":1378}]},{"sku":"2020708001","name":"國小自然４下練習簿教師版","subject":"自然","vol":"4下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":78}]},{"sku":"2020708045","name":"國小自然４下重點複習(學用)","subject":"自然","vol":"4下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":2889}]},{"sku":"2020708046","name":"國小自然４下重點複習(教用)","subject":"自然","vol":"4下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":246}]},{"sku":"2020709000","name":"國小自然５上練習簿","subject":"自然","vol":"5上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":5033},{"ver":"51","avail":20000}]},{"sku":"2020709001","name":"國小自然５上練習簿教師版","subject":"自然","vol":"5上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":782},{"ver":"51","avail":3989}]},{"sku":"2020709045","name":"國小自然５上重點複習","subject":"自然","vol":"5上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":4179},{"ver":"51","avail":10000}]},{"sku":"2020709046","name":"國小自然５上重點複習教師版","subject":"自然","vol":"5上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":697},{"ver":"51","avail":2672}]},{"sku":"2020710000","name":"國小自然５下練習簿","subject":"自然","vol":"5下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":5818}]},{"sku":"2020710001","name":"國小自然５下練習簿教師版","subject":"自然","vol":"5下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":192}]},{"sku":"2020710045","name":"國小自然５下重點複習(學用)","subject":"自然","vol":"5下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":3006}]},{"sku":"2020710046","name":"國小自然５下重點複習(教用)","subject":"自然","vol":"5下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020711000","name":"國小自然６上練習簿","subject":"自然","vol":"6上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020711001","name":"國小自然６上練習簿教師版","subject":"自然","vol":"6上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":625},{"ver":"51","avail":0}]},{"sku":"2020711045","name":"國小自然６上重點複習","subject":"自然","vol":"6上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020711046","name":"國小自然６上重點複習教師版","subject":"自然","vol":"6上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":521},{"ver":"51","avail":0}]},{"sku":"2020712000","name":"國小自然６下練習簿","subject":"自然","vol":"6下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1827},{"ver":"51","avail":1320}]},{"sku":"2020712001","name":"國小自然６下練習簿教師版","subject":"自然","vol":"6下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":418}]},{"sku":"2020712045","name":"國小自然６下重點複習(學用)","subject":"自然","vol":"6下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":273},{"ver":"51","avail":1661}]},{"sku":"2020712046","name":"國小自然６下重點複習(教用)","subject":"自然","vol":"6下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":132},{"ver":"51","avail":166}]},{"sku":"2020805000","name":"國小社會３上練習簿","subject":"社會","vol":"3上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":940},{"ver":"51","avail":0}]},{"sku":"2020805001","name":"國小社會３上練習簿教師版","subject":"社會","vol":"3上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020805045","name":"國小社會３上重點複習","subject":"社會","vol":"3上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1022},{"ver":"51","avail":0}]},{"sku":"2020805046","name":"國小社會３上重點複習教師版","subject":"社會","vol":"3上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020806000","name":"國小社會３下練習簿","subject":"社會","vol":"3下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":129},{"ver":"41","avail":689},{"ver":"51","avail":3551}]},{"sku":"2020806001","name":"國小社會３下練習簿教師版","subject":"社會","vol":"3下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":976}]},{"sku":"2020806045","name":"國小社會３下重點複習(學用)","subject":"社會","vol":"3下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":177},{"ver":"41","avail":940},{"ver":"51","avail":1029}]},{"sku":"2020806046","name":"國小社會３下重點複習(教用)","subject":"社會","vol":"3下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":42},{"ver":"41","avail":36},{"ver":"51","avail":202}]},{"sku":"2020807000","name":"國小社會４上練習簿","subject":"社會","vol":"4上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":383},{"ver":"41","avail":2462},{"ver":"51","avail":40000}]},{"sku":"2020807001","name":"國小社會４上練習簿教師版","subject":"社會","vol":"4上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":58},{"ver":"41","avail":287},{"ver":"51","avail":5669}]},{"sku":"2020807045","name":"國小社會４上重點複習","subject":"社會","vol":"4上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":278},{"ver":"41","avail":1628},{"ver":"51","avail":5000}]},{"sku":"2020807046","name":"國小社會４上重點複習教師版","subject":"社會","vol":"4上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":2884}]},{"sku":"2020808000","name":"國小社會４下練習簿","subject":"社會","vol":"4下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1676},{"ver":"51","avail":2396}]},{"sku":"2020808001","name":"國小社會４下練習簿教師版","subject":"社會","vol":"4下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020808045","name":"國小社會４下重點複習(學用)","subject":"社會","vol":"4下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1189},{"ver":"51","avail":797}]},{"sku":"2020808046","name":"國小社會４下重點複習(教用)","subject":"社會","vol":"4下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":124},{"ver":"51","avail":0}]},{"sku":"2020809000","name":"國小社會５上練習簿","subject":"社會","vol":"5上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":3552},{"ver":"51","avail":0}]},{"sku":"2020809001","name":"國小社會５上練習簿教師版","subject":"社會","vol":"5上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":840},{"ver":"51","avail":0}]},{"sku":"2020809045","name":"國小社會５上重點複習","subject":"社會","vol":"5上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020809046","name":"國小社會５上重點複習教師版","subject":"社會","vol":"5上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020810000","name":"國小社會５下練習簿","subject":"社會","vol":"5下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":5639}]},{"sku":"2020810001","name":"國小社會５下練習簿教師版","subject":"社會","vol":"5下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":1025}]},{"sku":"2020810045","name":"國小社會５下重點複習(學用)","subject":"社會","vol":"5下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":1873}]},{"sku":"2020810046","name":"國小社會５下重點複習(教用)","subject":"社會","vol":"5下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020811000","name":"國小社會６上練習簿","subject":"社會","vol":"6上","type":"練習簿","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":960},{"ver":"51","avail":0}]},{"sku":"2020811001","name":"國小社會６上練習簿教師版","subject":"社會","vol":"6上","type":"練習簿","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020811045","name":"國小社會６上重點複習","subject":"社會","vol":"6上","type":"重點複習","usage":"學用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2020811046","name":"國小社會６上重點複習教師版","subject":"社會","vol":"6上","type":"重點複習","usage":"教用","category":"版版補充","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":960},{"ver":"51","avail":0}]},{"sku":"2020812000","name":"國小社會６下練習簿","subject":"社會","vol":"6下","type":"練習簿","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":2910},{"ver":"51","avail":1698}]},{"sku":"2020812001","name":"國小社會６下練習簿教師版","subject":"社會","vol":"6下","type":"練習簿","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":285}]},{"sku":"2020812045","name":"國小社會６下重點複習(學用)","subject":"社會","vol":"6下","type":"重點複習","usage":"學用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":732},{"ver":"51","avail":812}]},{"sku":"2020812046","name":"國小社會６下重點複習(教用)","subject":"社會","vol":"6下","type":"重點複習","usage":"教用","category":"版版補充","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":144},{"ver":"51","avail":0}]},{"sku":"2040101000","name":"國小國語１上學習自修","subject":"國語","vol":"1上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":96},{"ver":"41","avail":2774}]},{"sku":"2040101001","name":"國小國語１上學習評量","subject":"國語","vol":"1上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":4207}]},{"sku":"2040101003","name":"國小國語１上測驗卷","subject":"國語","vol":"1上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":523}]},{"sku":"2040101020","name":"國小國語１上學習自修非賣品","subject":"國語","vol":"1上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":17},{"ver":"41","avail":179}]},{"sku":"2040102000","name":"國小國語１下學習自修","subject":"國語","vol":"1下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":67},{"ver":"51","avail":4086}]},{"sku":"2040102001","name":"國小國語１下學習評量","subject":"國語","vol":"1下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":4034}]},{"sku":"2040102003","name":"國小國語１下測驗卷","subject":"國語","vol":"1下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":3557}]},{"sku":"2040102020","name":"國小國語１下學習自修非賣品","subject":"國語","vol":"1下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":101}]},{"sku":"2040103000","name":"國小國語２上學習自修","subject":"國語","vol":"2上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"41","avail":14714}]},{"sku":"2040103001","name":"國小國語２上學習評量","subject":"國語","vol":"2上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"41","avail":21875}]},{"sku":"2040103003","name":"國小國語２上測驗卷","subject":"國語","vol":"2上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":17159}]},{"sku":"2040103020","name":"國小國語２上學習自修非賣品","subject":"國語","vol":"2上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":97}]},{"sku":"2040104000","name":"國小國語２下學習自修","subject":"國語","vol":"2下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"51","avail":866}]},{"sku":"2040104001","name":"國小國語２下學習評量","subject":"國語","vol":"2下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"51","avail":2803}]},{"sku":"2040104003","name":"國小國語２下測驗卷","subject":"國語","vol":"2下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":2593}]},{"sku":"2040104020","name":"國小國語２下學習自修非賣品","subject":"國語","vol":"2下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":147},{"ver":"51","avail":37}]},{"sku":"2040105000","name":"國小國語３上學習自修","subject":"國語","vol":"3上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2040105001","name":"國小國語３上學習評量","subject":"國語","vol":"3上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"51","avail":0}]},{"sku":"2040105003","name":"國小國語３上測驗卷","subject":"國語","vol":"3上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040105020","name":"國小國語３上學習自修非賣品","subject":"國語","vol":"3上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0}]},{"sku":"2040106000","name":"國小國語３下學習自修","subject":"國語","vol":"3下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":2},{"ver":"51","avail":3246}]},{"sku":"2040106001","name":"國小國語３下學習評量","subject":"國語","vol":"3下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":4007}]},{"sku":"2040106003","name":"國小國語３下測驗卷","subject":"國語","vol":"3下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":8},{"ver":"41","avail":2994}]},{"sku":"2040106020","name":"國小國語３下學習自修非賣品","subject":"國語","vol":"3下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":64}]},{"sku":"2040107000","name":"國小國語４上學習自修","subject":"國語","vol":"4上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":138},{"ver":"41","avail":18982}]},{"sku":"2040107001","name":"國小國語４上學習評量","subject":"國語","vol":"4上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":3476}]},{"sku":"2040107003","name":"國小國語４上測驗卷","subject":"國語","vol":"4上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":14115}]},{"sku":"2040107020","name":"國小國語４上學習自修非賣品","subject":"國語","vol":"4上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":85},{"ver":"41","avail":940}]},{"sku":"2040108000","name":"國小國語４下學習自修","subject":"國語","vol":"4下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":58},{"ver":"51","avail":3946}]},{"sku":"2040108001","name":"國小國語４下學習評量","subject":"國語","vol":"4下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":3053}]},{"sku":"2040108003","name":"國小國語４下測驗卷","subject":"國語","vol":"4下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":3296}]},{"sku":"2040108020","name":"國小國語４下學習自修非賣品","subject":"國語","vol":"4下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":6},{"ver":"51","avail":94}]},{"sku":"2040109000","name":"國小國語５上學習自修","subject":"國語","vol":"5上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":14}]},{"sku":"2040109001","name":"國小國語５上學習評量","subject":"國語","vol":"5上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":12999}]},{"sku":"2040109003","name":"國小國語５上測驗卷","subject":"國語","vol":"5上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":10910}]},{"sku":"2040109020","name":"國小國語５上學習自修非賣品","subject":"國語","vol":"5上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":29}]},{"sku":"2040110000","name":"國小國語５下學習自修","subject":"國語","vol":"5下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":3576}]},{"sku":"2040110001","name":"國小國語５下學習評量","subject":"國語","vol":"5下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":3191}]},{"sku":"2040110003","name":"國小國語５下測驗卷","subject":"國語","vol":"5下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":2103}]},{"sku":"2040110020","name":"國小國語５下學習自修非賣品","subject":"國語","vol":"5下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":51}]},{"sku":"2040111000","name":"國小國語６上學習自修","subject":"國語","vol":"6上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2040111001","name":"國小國語６上學習評量","subject":"國語","vol":"6上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040111003","name":"國小國語６上測驗卷","subject":"國語","vol":"6上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040111020","name":"國小國語６上學習自修非賣品","subject":"國語","vol":"6上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0}]},{"sku":"2040112000","name":"國小國語６下學習自修","subject":"國語","vol":"6下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":91},{"ver":"51","avail":6345}]},{"sku":"2040112001","name":"國小國語６下學習評量","subject":"國語","vol":"6下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":5358}]},{"sku":"2040112003","name":"國小國語６下測驗卷","subject":"國語","vol":"6下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":2738}]},{"sku":"2040112020","name":"國小國語６下學習自修非賣品","subject":"國語","vol":"6下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":92}]},{"sku":"2040405001","name":"國小英語Wonder World 1學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040405016","name":"國小英語翰Here 1學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040406001","name":"國小英語Wonder World 2學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"41","avail":633}]},{"sku":"2040406016","name":"國小英語翰Here 2學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"41","avail":795}]},{"sku":"2040407001","name":"國小英語Wonder World 3學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"31","avail":5808}]},{"sku":"2040407016","name":"國小英語翰Here 3學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"31","avail":3310}]},{"sku":"2040408001","name":"國小英語Wonder World 4學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"41","avail":522}]},{"sku":"2040408016","name":"國小英語翰Here 4學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"41","avail":451}]},{"sku":"2040409001","name":"國小英語Wonder World 5學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"31","avail":0},{"ver":"41","avail":5900}]},{"sku":"2040409016","name":"國小英語翰Here 5學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":4074}]},{"sku":"2040410001","name":"國小英語Wonder World 6學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"41","avail":0},{"ver":"51","avail":647}]},{"sku":"2040410016","name":"國小英語翰Here 6學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":1914}]},{"sku":"2040411001","name":"國小英語Wonder World 7學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2040411016","name":"國小英語翰Here 7學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2040412001","name":"國小英語Wonder World 8學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"41","avail":0},{"ver":"51","avail":990}]},{"sku":"2040412016","name":"國小英語翰Here 8學習評量","subject":"英語","vol":"","type":"學習評量","usage":"學用","category":"參考書","semester":"通用","versions":[{"ver":"21","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":768}]},{"sku":"2040501000","name":"國小數學１上學習自修","subject":"數學","vol":"1上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":162},{"ver":"41","avail":5357}]},{"sku":"2040501001","name":"國小數學１上學習評量","subject":"數學","vol":"1上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":12343}]},{"sku":"2040501003","name":"國小數學１上測驗卷","subject":"數學","vol":"1上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":9377}]},{"sku":"2040501020","name":"國小數學１上學習自修非賣品","subject":"數學","vol":"1上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":77},{"ver":"41","avail":1837}]},{"sku":"2040502000","name":"國小數學１下學習自修","subject":"數學","vol":"1下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":31},{"ver":"51","avail":2631}]},{"sku":"2040502001","name":"國小數學１下學習評量","subject":"數學","vol":"1下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":4470}]},{"sku":"2040502003","name":"國小數學１下測驗卷","subject":"數學","vol":"1下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":2919}]},{"sku":"2040502020","name":"國小數學１下學習自修非賣品","subject":"數學","vol":"1下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":6},{"ver":"51","avail":796}]},{"sku":"2040503000","name":"國小數學２上學習自修","subject":"數學","vol":"2上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"41","avail":7127}]},{"sku":"2040503001","name":"國小數學２上學習評量","subject":"數學","vol":"2上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"41","avail":15026}]},{"sku":"2040503003","name":"國小數學２上測驗卷","subject":"數學","vol":"2上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":11409}]},{"sku":"2040503020","name":"國小數學２上學習自修非賣品","subject":"數學","vol":"2上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":140}]},{"sku":"2040504000","name":"國小數學２下學習自修","subject":"數學","vol":"2下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"51","avail":1866}]},{"sku":"2040504001","name":"國小數學２下學習評量","subject":"數學","vol":"2下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"51","avail":2133}]},{"sku":"2040504003","name":"國小數學２下測驗卷","subject":"數學","vol":"2下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":1565}]},{"sku":"2040504020","name":"國小數學２下學習自修非賣品","subject":"數學","vol":"2下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":90}]},{"sku":"2040505000","name":"國小數學３上學習自修","subject":"數學","vol":"3上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2040505001","name":"國小數學３上學習評量","subject":"數學","vol":"3上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"51","avail":0}]},{"sku":"2040505003","name":"國小數學３上測驗卷","subject":"數學","vol":"3上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040505004","name":"國小數學３上麻辣講義","subject":"數學","vol":"3上","type":"麻辣講義","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"51","avail":0}]},{"sku":"2040505005","name":"國小數學３上麻辣講義(教師版)","subject":"數學","vol":"3上","type":"麻辣講義","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"51","avail":0}]},{"sku":"2040505020","name":"國小數學３上學習自修非賣品","subject":"數學","vol":"3上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0}]},{"sku":"2040506000","name":"國小數學３下學習自修","subject":"數學","vol":"3下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":73},{"ver":"51","avail":2853}]},{"sku":"2040506001","name":"國小數學３下學習評量","subject":"數學","vol":"3下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":3580}]},{"sku":"2040506003","name":"國小數學３下測驗卷","subject":"數學","vol":"3下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":22},{"ver":"41","avail":4734}]},{"sku":"2040506004","name":"國小數學３下麻辣講義","subject":"數學","vol":"3下","type":"麻辣講義","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":881}]},{"sku":"2040506005","name":"國小數學３下麻辣講義(教用版)","subject":"數學","vol":"3下","type":"麻辣講義","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":141}]},{"sku":"2040506020","name":"國小數學３下學習自修非賣品","subject":"數學","vol":"3下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":20},{"ver":"41","avail":8},{"ver":"51","avail":285}]},{"sku":"2040507000","name":"國小數學４上學習自修","subject":"數學","vol":"4上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":204},{"ver":"41","avail":13729}]},{"sku":"2040507001","name":"國小數學４上學習評量","subject":"數學","vol":"4上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":14289}]},{"sku":"2040507003","name":"國小數學４上測驗卷","subject":"數學","vol":"4上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":10720}]},{"sku":"2040507004","name":"國小數學４上麻辣講義","subject":"數學","vol":"4上","type":"麻辣講義","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":4363}]},{"sku":"2040507005","name":"國小數學４上麻辣講義(教師版)","subject":"數學","vol":"4上","type":"麻辣講義","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":239}]},{"sku":"2040507020","name":"國小數學４上學習自修非賣品","subject":"數學","vol":"4上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":32},{"ver":"41","avail":99}]},{"sku":"2040508000","name":"國小數學４下學習自修","subject":"數學","vol":"4下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":88},{"ver":"51","avail":3188}]},{"sku":"2040508001","name":"國小數學４下學習評量","subject":"數學","vol":"4下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":3872}]},{"sku":"2040508003","name":"國小數學４下測驗卷","subject":"數學","vol":"4下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":2347}]},{"sku":"2040508004","name":"國小數學４下麻辣講義","subject":"數學","vol":"4下","type":"麻辣講義","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":506}]},{"sku":"2040508005","name":"國小數學４下麻辣講義(教用版)","subject":"數學","vol":"4下","type":"麻辣講義","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":226}]},{"sku":"2040508020","name":"國小數學４下學習自修非賣品","subject":"數學","vol":"4下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":3},{"ver":"51","avail":66}]},{"sku":"2040509000","name":"國小數學５上學習自修","subject":"數學","vol":"5上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":12744}]},{"sku":"2040509001","name":"國小數學５上學習評量","subject":"數學","vol":"5上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":16399}]},{"sku":"2040509003","name":"國小數學５上測驗卷","subject":"數學","vol":"5上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":12465}]},{"sku":"2040509004","name":"國小數學５上麻辣講義","subject":"數學","vol":"5上","type":"麻辣講義","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":5826}]},{"sku":"2040509005","name":"國小數學５上麻辣講義(教師版)","subject":"數學","vol":"5上","type":"麻辣講義","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":564}]},{"sku":"2040509020","name":"國小數學５上學習自修非賣品","subject":"數學","vol":"5上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":95}]},{"sku":"2040510000","name":"國小數學５下學習自修","subject":"數學","vol":"5下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":2799}]},{"sku":"2040510001","name":"國小數學５下學習評量","subject":"數學","vol":"5下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":1543}]},{"sku":"2040510003","name":"國小數學５下測驗卷","subject":"數學","vol":"5下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":2191}]},{"sku":"2040510004","name":"國小數學５下麻辣講義","subject":"數學","vol":"5下","type":"麻辣講義","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":1250}]},{"sku":"2040510005","name":"國小數學５下麻辣講義(教用版)","subject":"數學","vol":"5下","type":"麻辣講義","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":659}]},{"sku":"2040510020","name":"國小數學５下學習自修非賣品","subject":"數學","vol":"5下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":93}]},{"sku":"2040511000","name":"國小數學６上學習自修","subject":"數學","vol":"6上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2040511001","name":"國小數學６上學習評量","subject":"數學","vol":"6上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040511003","name":"國小數學６上測驗卷","subject":"數學","vol":"6上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040511004","name":"國小數學６上麻辣講義","subject":"數學","vol":"6上","type":"麻辣講義","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040511005","name":"國小數學６上麻辣講義(教師版)","subject":"數學","vol":"6上","type":"麻辣講義","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040511020","name":"國小數學６上學習自修非賣品","subject":"數學","vol":"6上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0}]},{"sku":"2040512000","name":"國小數學６下學習自修","subject":"數學","vol":"6下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":28},{"ver":"51","avail":5449}]},{"sku":"2040512001","name":"國小數學６下學習評量","subject":"數學","vol":"6下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":5576}]},{"sku":"2040512003","name":"國小數學６下測驗卷","subject":"數學","vol":"6下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":3161}]},{"sku":"2040512004","name":"國小數學６下麻辣講義","subject":"數學","vol":"6下","type":"麻辣講義","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":1670}]},{"sku":"2040512005","name":"國小數學６下麻辣講義(教用版)","subject":"數學","vol":"6下","type":"麻辣講義","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":41}]},{"sku":"2040512020","name":"國小數學６下學習自修非賣品","subject":"數學","vol":"6下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":1},{"ver":"51","avail":124}]},{"sku":"2040601001","name":"國小生活１上自修式評量","subject":"生活","vol":"1上","type":"自修式評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":2914}]},{"sku":"2040601003","name":"國小生活１上測驗卷","subject":"生活","vol":"1上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":4084}]},{"sku":"2040601021","name":"國小生活１上自修式評量非賣品","subject":"生活","vol":"1上","type":"自修式評量","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":147}]},{"sku":"2040602001","name":"國小生活１下自修式評量","subject":"生活","vol":"1下","type":"自修式評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":2242}]},{"sku":"2040602003","name":"國小生活１下測驗卷","subject":"生活","vol":"1下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":1011}]},{"sku":"2040602021","name":"國小生活１下自修式評量非賣品","subject":"生活","vol":"1下","type":"自修式評量","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":130}]},{"sku":"2040603001","name":"國小生活２上自修式評量","subject":"生活","vol":"2上","type":"自修式評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"41","avail":3597}]},{"sku":"2040603003","name":"國小生活２上測驗卷","subject":"生活","vol":"2上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":4248}]},{"sku":"2040603021","name":"國小生活２上自修式評量非賣品","subject":"生活","vol":"2上","type":"自修式評量","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":186}]},{"sku":"2040604001","name":"國小生活２下自修式評量","subject":"生活","vol":"2下","type":"自修式評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"51","avail":1935}]},{"sku":"2040604003","name":"國小生活２下測驗卷","subject":"生活","vol":"2下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":1484}]},{"sku":"2040604021","name":"國小生活２下自修式評量非賣品","subject":"生活","vol":"2下","type":"自修式評量","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":109}]},{"sku":"2040705000","name":"國小自然３上學習自修","subject":"自然","vol":"3上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2040705001","name":"國小自然３上學習評量","subject":"自然","vol":"3上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040705003","name":"國小自然３上測驗卷","subject":"自然","vol":"3上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040705020","name":"國小自然３上學習自修非賣品","subject":"自然","vol":"3上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0}]},{"sku":"2040706000","name":"國小自然３下學習自修","subject":"自然","vol":"3下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":26},{"ver":"41","avail":71},{"ver":"51","avail":2245}]},{"sku":"2040706001","name":"國小自然３下學習評量","subject":"自然","vol":"3下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":57},{"ver":"41","avail":2622}]},{"sku":"2040706003","name":"國小自然３下測驗卷","subject":"自然","vol":"3下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":14},{"ver":"41","avail":3099}]},{"sku":"2040706020","name":"國小自然３下學習自修非賣品","subject":"自然","vol":"3下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":20},{"ver":"41","avail":18},{"ver":"51","avail":126}]},{"sku":"2040707000","name":"國小自然４上學習自修","subject":"自然","vol":"4上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":8},{"ver":"41","avail":14350}]},{"sku":"2040707001","name":"國小自然４上學習評量","subject":"自然","vol":"4上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0}]},{"sku":"2040707003","name":"國小自然４上測驗卷","subject":"自然","vol":"4上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":12992}]},{"sku":"2040707020","name":"國小自然４上學習自修非賣品","subject":"自然","vol":"4上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":134}]},{"sku":"2040708000","name":"國小自然４下學習自修","subject":"自然","vol":"4下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":65},{"ver":"51","avail":3283}]},{"sku":"2040708001","name":"國小自然４下學習評量","subject":"自然","vol":"4下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":4176}]},{"sku":"2040708003","name":"國小自然４下測驗卷","subject":"自然","vol":"4下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":3175}]},{"sku":"2040708020","name":"國小自然４下學習自修非賣品","subject":"自然","vol":"4下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":241},{"ver":"51","avail":114}]},{"sku":"2040709000","name":"國小自然５上學習自修","subject":"自然","vol":"5上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":15830}]},{"sku":"2040709001","name":"國小自然５上學習評量","subject":"自然","vol":"5上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":10940}]},{"sku":"2040709003","name":"國小自然５上測驗卷","subject":"自然","vol":"5上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":8000}]},{"sku":"2040709020","name":"國小自然５上學習自修非賣品","subject":"自然","vol":"5上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":71}]},{"sku":"2040710000","name":"國小自然５下學習自修","subject":"自然","vol":"5下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":3018}]},{"sku":"2040710001","name":"國小自然５下學習評量","subject":"自然","vol":"5下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":2989}]},{"sku":"2040710003","name":"國小自然５下測驗卷","subject":"自然","vol":"5下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":2158}]},{"sku":"2040710020","name":"國小自然５下學習自修非賣品","subject":"自然","vol":"5下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":51}]},{"sku":"2040711000","name":"國小自然６上學習自修","subject":"自然","vol":"6上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2040711001","name":"國小自然６上學習評量","subject":"自然","vol":"6上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040711003","name":"國小自然６上測驗卷","subject":"自然","vol":"6上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040711020","name":"國小自然６上學習自修非賣品","subject":"自然","vol":"6上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0}]},{"sku":"2040712000","name":"國小自然６下學習自修","subject":"自然","vol":"6下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":91},{"ver":"51","avail":5005}]},{"sku":"2040712001","name":"國小自然６下學習評量","subject":"自然","vol":"6下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":4710}]},{"sku":"2040712003","name":"國小自然６下測驗卷","subject":"自然","vol":"6下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":4160}]},{"sku":"2040712020","name":"國小自然６下學習自修非賣品","subject":"自然","vol":"6下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":256},{"ver":"51","avail":93}]},{"sku":"2040805000","name":"國小社會３上學習自修","subject":"社會","vol":"3上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2040805001","name":"國小社會３上學習評量","subject":"社會","vol":"3上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040805003","name":"國小社會３上測驗卷","subject":"社會","vol":"3上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040805020","name":"國小社會３上學習自修非賣品","subject":"社會","vol":"3上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0}]},{"sku":"2040806000","name":"國小社會３下學習自修","subject":"社會","vol":"3下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":30},{"ver":"41","avail":33},{"ver":"51","avail":2887}]},{"sku":"2040806001","name":"國小社會３下學習評量","subject":"社會","vol":"3下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":82},{"ver":"41","avail":3651}]},{"sku":"2040806003","name":"國小社會３下測驗卷","subject":"社會","vol":"3下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":5},{"ver":"41","avail":3182}]},{"sku":"2040806020","name":"國小社會３下學習自修非賣品","subject":"社會","vol":"3下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":1},{"ver":"41","avail":2},{"ver":"51","avail":100}]},{"sku":"2040807000","name":"國小社會４上學習自修","subject":"社會","vol":"4上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":67},{"ver":"41","avail":12359}]},{"sku":"2040807001","name":"國小社會４上學習評量","subject":"社會","vol":"4上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":15291}]},{"sku":"2040807003","name":"國小社會４上測驗卷","subject":"社會","vol":"4上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0}]},{"sku":"2040807020","name":"國小社會４上學習自修非賣品","subject":"社會","vol":"4上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":766}]},{"sku":"2040808000","name":"國小社會４下學習自修","subject":"社會","vol":"4下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":127},{"ver":"51","avail":3098}]},{"sku":"2040808001","name":"國小社會４下學習評量","subject":"社會","vol":"4下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":4179}]},{"sku":"2040808003","name":"國小社會４下測驗卷","subject":"社會","vol":"4下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"41","avail":4174}]},{"sku":"2040808020","name":"國小社會４下學習自修非賣品","subject":"社會","vol":"4下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":7},{"ver":"51","avail":44}]},{"sku":"2040809000","name":"國小社會５上學習自修","subject":"社會","vol":"5上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":15000}]},{"sku":"2040809001","name":"國小社會５上學習評量","subject":"社會","vol":"5上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":14000}]},{"sku":"2040809003","name":"國小社會５上測驗卷","subject":"社會","vol":"5上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":10000}]},{"sku":"2040809020","name":"國小社會５上學習自修非賣品","subject":"社會","vol":"5上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0}]},{"sku":"2040810000","name":"國小社會５下學習自修","subject":"社會","vol":"5下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":1837}]},{"sku":"2040810001","name":"國小社會５下學習評量","subject":"社會","vol":"5下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":3313}]},{"sku":"2040810003","name":"國小社會５下測驗卷","subject":"社會","vol":"5下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":2329}]},{"sku":"2040810020","name":"國小社會５下學習自修非賣品","subject":"社會","vol":"5下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":88}]},{"sku":"2040811000","name":"國小社會６上學習自修","subject":"社會","vol":"6上","type":"學習自修","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"41","avail":0},{"ver":"51","avail":0}]},{"sku":"2040811001","name":"國小社會６上學習評量","subject":"社會","vol":"6上","type":"學習評量","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040811003","name":"國小社會６上測驗卷","subject":"社會","vol":"6上","type":"測驗卷","usage":"學用","category":"參考書","semester":"上學期","versions":[{"ver":"31","avail":0},{"ver":"51","avail":0}]},{"sku":"2040811020","name":"國小社會６上學習自修非賣品","subject":"社會","vol":"6上","type":"學習自修","usage":"教用","category":"參考書","semester":"上學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":0}]},{"sku":"2040812000","name":"國小社會６下學習自修","subject":"社會","vol":"6下","type":"學習自修","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":16},{"ver":"51","avail":4991}]},{"sku":"2040812001","name":"國小社會６下學習評量","subject":"社會","vol":"6下","type":"學習評量","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":5148}]},{"sku":"2040812003","name":"國小社會６下測驗卷","subject":"社會","vol":"6下","type":"測驗卷","usage":"學用","category":"參考書","semester":"下學期","versions":[{"ver":"41","avail":3806}]},{"sku":"2040812020","name":"國小社會６下學習自修非賣品","subject":"社會","vol":"6下","type":"學習自修","usage":"教用","category":"參考書","semester":"下學期","versions":[{"ver":"21","avail":0},{"ver":"31","avail":0},{"ver":"41","avail":6},{"ver":"51","avail":125}]}];
+const REV   = {"ref":{"2040101000":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040101020":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040103000":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040103020":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040105000":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040105020":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040107000":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040107020":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040109000":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040109020":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040111000":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040111020":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040101001":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040103001":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040105001":{"old_ver":"21","treatment":"報廢","new_ver":"51"},"2040107001":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040109001":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040111001":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040101003":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040103003":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040105003":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040107003":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040109003":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040111003":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040805000":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040805020":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040807000":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040807020":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040809000":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040809020":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040811000":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040811020":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040805001":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040807001":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040809001":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040811001":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040805003":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040807003":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040809003":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040811003":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040501000":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040501020":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040503000":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040503020":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040505000":{"old_ver":"41","treatment":"報廢","new_ver":""},"2040505020":{"old_ver":"41","treatment":"報廢","new_ver":""},"2040507000":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040507020":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040509000":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040509020":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040511000":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040511020":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040501001":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040503001":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040505001":{"old_ver":"21","treatment":"報廢","new_ver":""},"2040507001":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040509001":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040511001":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040501003":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040503003":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040505003":{"old_ver":"31","treatment":"報廢","new_ver":""},"2040507003":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040509003":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040511003":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040505004":{"old_ver":"21","treatment":"報廢","new_ver":""},"2040505005":{"old_ver":"21","treatment":"報廢","new_ver":""},"2040507004":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040507005":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040509004":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040509005":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040511004":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040511005":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040705000":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040705020":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040707000":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040707020":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040709000":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040709020":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040711000":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040711020":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040705001":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040707001":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040709001":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040711001":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040705003":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040707003":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040709003":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040711003":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040601001":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040601021":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040603001":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040603021":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040601003":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040603003":{"old_ver":"41","treatment":"混用","new_ver":"51"},"2040405001":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040407001":{"old_ver":"31","treatment":"混用","new_ver":"51"},"2040409001":{"old_ver":"41","treatment":"","new_ver":"41"},"2040411001":{"old_ver":"41","treatment":"報廢","new_ver":"51"},"2040405016":{"old_ver":"31","treatment":"報廢","new_ver":"51"},"2040407016":{"old_ver":"31","treatment":"混用","new_ver":"31"},"2040409016":{"old_ver":"41","treatment":"","new_ver":"41"},"2040411016":{"old_ver":"41","treatment":"報廢","new_ver":"51"}},"supp":{"2020100002":{"11":"報廢","21":"報廢","31":"混用","41":"限區"},"2020101002":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020101000":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020101001":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020101045":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020101046":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020103002":{"11":"報廢","21":"報廢","31":"報廢","41":"限區"},"2020103003":{"11":"報廢","21":"報廢","31":"報廢","41":"限區"},"2020103000":{"11":"報廢","21":"報廢","31":"報廢","41":"混用"},"2020103001":{"11":"報廢","21":"報廢","31":"報廢","41":"混用"},"2020103045":{"11":"報廢","21":"報廢","31":"報廢","41":"限區"},"2020103046":{"11":"報廢","21":"報廢","31":"報廢","41":"限區"},"2020105002":{"21":"報廢","31":"報廢","41":"報廢"},"2020105003":{"21":"報廢","31":"報廢","41":"報廢"},"2020105000":{"21":"報廢","31":"報廢","41":"報廢"},"2020105001":{"21":"報廢","31":"報廢","41":"報廢"},"2020105045":{"21":"報廢","31":"報廢","41":"報廢"},"2020105046":{"21":"報廢","31":"報廢","41":"報廢"},"2020107002":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020107003":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020107000":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020107001":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020107045":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020107046":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020109002":{"21":"報廢","31":"報廢","41":"混用"},"2020109003":{"21":"報廢","31":"報廢","41":"混用"},"2020109000":{"21":"報廢","31":"報廢","41":"混用"},"2020109001":{"21":"報廢","31":"報廢","41":"混用"},"2020109045":{"21":"報廢","31":"報廢","41":"混用"},"2020109046":{"21":"報廢","31":"報廢","41":"混用"},"2020111002":{"11":"報廢","21":"報廢","31":"報廢","41":"報廢"},"2020111003":{"11":"報廢","21":"報廢","31":"報廢","41":"報廢"},"2020111000":{"11":"報廢","21":"報廢","31":"報廢","41":"報廢"},"2020111001":{"11":"報廢","21":"報廢","31":"報廢","41":"報廢"},"2020111045":{"11":"報廢","21":"報廢","31":"報廢","41":"報廢"},"2020111046":{"11":"報廢","21":"報廢","31":"報廢","41":"報廢"},"2020805000":{"21":"報廢","31":"報廢","41":"報廢"},"2020805001":{"21":"報廢","31":"報廢","41":"報廢"},"2020805045":{"21":"報廢","31":"報廢","41":"報廢"},"2020805046":{"21":"報廢","31":"報廢","41":"報廢"},"2020807000":{"31":"混用","41":"限區"},"2020807001":{"31":"混用","41":"限區"},"2020807045":{"31":"混用","41":"混用"},"2020807046":{"31":"混用","41":"混用"},"2020809000":{"21":"報廢","31":"報廢","41":"混用"},"2020809001":{"21":"報廢","31":"報廢","41":"混用"},"2020809045":{"21":"報廢","31":"報廢","41":"報廢"},"2020809046":{"21":"報廢","31":"報廢","41":"報廢"},"2020811000":{"31":"報廢","41":"報廢"},"2020811001":{"31":"報廢","41":"報廢"},"2020811045":{"31":"報廢","41":"報廢"},"2020811046":{"11":"報廢","31":"報廢","41":"報廢"},"2020501000":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020501001":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020501045":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020501046":{"11":"報廢","21":"報廢","31":"混用","41":"混用"},"2020503000":{"11":"報廢","21":"報廢","31":"報廢","41":"混用"},"2020503001":{"11":"報廢","21":"報廢","31":"報廢","41":"混用"},"2020503045":{"11":"報廢","21":"報廢","31":"報廢","41":"混用"},"2020503046":{"11":"報廢","21":"報廢","31":"報廢","41":"混用"},"2020505000":{"21":"報廢","31":"報廢","41":"報廢"},"2020505001":{"21":"報廢","31":"報廢","41":"報廢"},"2020505045":{"21":"報廢","31":"報廢","41":"報廢"},"2020505046":{"21":"報廢","31":"報廢","41":"報廢"},"2020507000":{"31":"限區","41":"限區"},"2020507001":{"31":"限區","41":"限區"},"2020507045":{"31":"混用","41":"混用"},"2020507046":{"41":"混用"},"2020509000":{"21":"報廢","31":"報廢","41":"混用"},"2020509001":{"21":"報廢","31":"報廢","41":"混用"},"2020509045":{"21":"報廢","31":"報廢","41":"混用"},"2020509046":{"21":"報廢","31":"報廢","41":"報廢"},"2020511000":{"31":"報廢","41":"報廢"},"2020511001":{"31":"報廢","41":"報廢"},"2020511045":{"31":"報廢","41":"報廢"},"2020511046":{"31":"報廢","41":"報廢"},"2020705000":{"21":"報廢","31":"報廢","41":"報廢"},"2020705001":{"21":"報廢","31":"報廢","41":"報廢"},"2020705045":{"21":"報廢","31":"報廢","41":"報廢"},"2020705046":{"31":"報廢","41":"報廢"},"2020707000":{"31":"混用","41":"混用"},"2020707001":{"31":"混用","41":"混用"},"2020707045":{"31":"混用","41":"混用"},"2020707046":{"31":"混用","41":"混用"},"2020709000":{"21":"報廢","31":"報廢","41":"混用"},"2020709001":{"21":"報廢","31":"報廢","41":"混用"},"2020709045":{"21":"報廢","31":"報廢","41":"限區"},"2020709046":{"21":"報廢","31":"報廢","41":"限區"},"2020711000":{"31":"報廢","41":"報廢"},"2020711001":{"31":"報廢","41":"報廢"},"2020711045":{"31":"報廢","41":"報廢"},"2020711046":{"31":"報廢","41":"報廢"},"2020601000":{"21":"報廢","31":"混用","41":"混用"},"2020601001":{"21":"報廢","31":"混用","41":"混用"},"2020603000":{"11":"報廢","21":"混用","31":"報廢","41":"混用"},"2020603001":{"11":"報廢","21":"混用","31":"報廢","41":"混用"}}};
+
+// ── STATE ──
+let activeTab = 'ref';
+let activeSem = 'all';
+let activeFilter = 'all';
+let thresholds = {};
+let activeSubj = { ref:null, nsp:null, sup:null };
+let invDate = '2026.06.09';
+let revLabel = '115(一)';
+let invLoaded = false, revLoaded = false;
+let activeSort = 'default'; // default | asc | desc | ratio
+
+// ── REV HELPERS ──
+function getT(sku, ver, cat) {
+  if (cat === '版版補充') {
+    const m = REV.supp[sku];
+    return m ? (m[String(ver)] || null) : null;
+  }
+  const m = REV.ref[sku];
+  if (!m) return null;
+  const vn  = parseInt(ver)       || 0;
+  const vo  = parseInt(m.old_ver) || 0;
+  const vne = parseInt(m.new_ver) || 999;
+  if (vn >= vne) return '新版';
+  if (vn === vo) return m.treatment || null;
+  if (vn < vo)  return '報廢';
+  return null;
+}
+function isScrap(sku, ver, cat) { return getT(sku, ver, cat) === '報廢'; }
+
+// ── THRESHOLD ──
+function getTh(sku, tab) {
+  if (thresholds[sku] != null) return thresholds[sku];
+  if (tab === 'ref') return parseInt(document.getElementById('gRef').value) || 300;
+  if (tab === 'nsp') return parseInt(document.getElementById('gNsp').value) || 100;
+  return parseInt(document.getElementById('gSup').value) || 500;
+}
+
+function stOf(avail, th, scrapped) {
+  if (scrapped) return '報廢';
+  if (avail === 0) return '庫存耗盡';
+  if (avail < th)  return '低庫存';
+  return '正常';
+}
+
+// 版版補充 / 非賣品：加總可用版次
+function multiSt(prod, tab) {
+  const th = getTh(prod.sku, tab);
+  const cat = tab === 'sup' ? '版版補充' : '參考書';
+  const usable = prod.versions
+    .filter(v => !isScrap(prod.sku, v.ver, cat))
+    .reduce((s, v) => s + v.avail, 0);
+  const st = usable === 0 ? '庫存耗盡' : usable < th ? '低庫存' : '正常';
+  return { st, usable, th };
+}
+
+// ── CONTROLS ──
+function switchTab(t) {
+  activeTab = t;
+  ['ref','nsp','sup'].forEach(id => {
+    document.getElementById('panel-'+id).classList.toggle('active', id === t);
+    const el = document.getElementById('tab-'+id);
+    el.className = 'tab' + (id === t ? ' '+id : '');
+  });
+  render();
+}
+
+function setSem(s) {
+  activeSem = s;
+  document.querySelectorAll('.sb').forEach(b => b.className = 'sb');
+  const map = {'上學期':'sb-up','下學期':'sb-dn','all':'sb-all'};
+  const cls = {'上學期':'up','下學期':'dn','all':'all'};
+  document.getElementById(map[s]).classList.add(cls[s]);
+  render();
+}
+
+function setF(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.fb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  render();
+}
+
+function setSort(s, btn) {
+  activeSort = s;
+  document.querySelectorAll('.srtb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  render();
+}
+
+function applyTh(type) {
+  const ids = {ref:'gRef', nsp:'gNsp', sup:'gSup'};
+  const cats = {ref:'參考書', nsp:'nsp', sup:'版版補充'};
+  const v = parseInt(document.getElementById(ids[type]).value) || 300;
+  if (type === 'nsp') {
+    PRODS.filter(p => p.category === '參考書' && p.name.includes('非賣品')).forEach(p => { delete thresholds[p.sku]; });
+  } else {
+    PRODS.filter(p => p.category === cats[type] && (type !== 'ref' || !p.name.includes('非賣品'))).forEach(p => { delete thresholds[p.sku]; });
+  }
+  render(); toast('✅ 警戒值已套用 → ' + v + ' 本');
+}
+
+function setRowTh(sku, val) {
+  const v = parseInt(val);
+  if (v > 0) { thresholds[sku] = v; render(); }
+}
+
+function clickSubj(tab, subj) {
+  activeSubj[tab] = activeSubj[tab] === subj ? null : subj;
+  render();
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.style.display = 'block';
+  clearTimeout(el._t); el._t = setTimeout(() => { el.style.display='none'; }, 2500);
+}
+
+// ── FILTER ──
+const COND_FILTERS = ['庫存耗盡','低庫存','正常','報廢有庫存'];
+
+function prodsFor(tab) {
+  const q = document.getElementById('sq').value.trim().toLowerCase();
+  return PRODS.filter(p => {
+    // category
+    if (tab === 'ref') {
+      if (p.category !== '參考書' || p.name.includes('非賣品')) return false;
+    } else if (tab === 'nsp') {
+      if (p.category !== '參考書' || !p.name.includes('非賣品')) return false;
+    } else {
+      if (p.category !== '版版補充') return false;
+    }
+    // semester
+    if (activeSem !== 'all' && p.semester !== '通用' && p.semester !== activeSem) return false;
+    // search
+    if (q && !p.name.toLowerCase().includes(q) && !p.sku.includes(q)) return false;
+    // usage filter
+    if (activeFilter === '學用') return tab === 'nsp' ? true : p.usage === '學用';
+    if (activeFilter === '教用') return tab === 'nsp' ? false : p.usage === '教用';
+    if (activeFilter === 'all') return true;
+    // status filters
+    if (activeFilter === '報廢有庫存') {
+      return p.versions.some(v => isScrap(p.sku, v.ver, tab==='sup'?'版版補充':'參考書') && v.avail > 0);
+    }
+    if (tab === 'ref') {
+      const th = getTh(p.sku, 'ref');
+      return p.versions.some(v => stOf(v.avail, th, isScrap(p.sku, v.ver, '參考書')) === activeFilter);
+    }
+    return multiSt(p, tab).st === activeFilter;
+  });
+}
+
+// ── SORT ──
+const VOL_ORDER  = ['首','1上','1下','2上','2下','3上','3下','4上','4下','5上','5下','6上','6下'];
+const TYPE_ORDER = ['學習自修','自修式評量','學習評量','麻辣講義','測驗卷','練習簿','語文習寫簿','注音習寫簿','重點複習'];
+const SUBJ_SEQ   = ['國語','數學','社會','自然','生活','英語','其他'];
+function getDisplayStock(p, tab) {
+  // 取得用來排序的庫存數字
+  if (tab === 'ref') {
+    return p.versions.length ? p.versions[0].avail : 0;
+  }
+  // nsp / sup: 加總可用版次
+  const cat = tab === 'sup' ? '版版補充' : '參考書';
+  return p.versions.filter(v => !isScrap(p.sku, v.ver, cat)).reduce((s,v)=>s+v.avail, 0);
+}
+
+function getRatio(p, tab) {
+  const stock = getDisplayStock(p, tab);
+  const th = getTh(p.sku, tab);
+  return th > 0 ? stock / th : 999;
+}
+
+function sortProds(arr, crossSubj, tab) {
+  const si = p => { const i=SUBJ_SEQ.indexOf(p.subject);  return i<0?99:i; };
+  const vi = p => { const i=VOL_ORDER.indexOf(p.vol);     return i<0?99:i; };
+  const ti = p => { const i=TYPE_ORDER.indexOf(p.type);   return i<0?99:i; };
+
+  if (activeSort === 'asc') {
+    arr.sort((a,b) => {
+      const diff = getDisplayStock(a,tab) - getDisplayStock(b,tab);
+      if (diff !== 0) return diff;
+      if (crossSubj && si(a)!==si(b)) return si(a)-si(b);
+      return vi(a)!==vi(b) ? vi(a)-vi(b) : ti(a)-ti(b);
+    });
+  } else if (activeSort === 'desc') {
+    arr.sort((a,b) => {
+      const diff = getDisplayStock(b,tab) - getDisplayStock(a,tab);
+      if (diff !== 0) return diff;
+      if (crossSubj && si(a)!==si(b)) return si(a)-si(b);
+      return vi(a)!==vi(b) ? vi(a)-vi(b) : ti(a)-ti(b);
+    });
+  } else if (activeSort === 'ratio') {
+    arr.sort((a,b) => {
+      const diff = getRatio(a,tab) - getRatio(b,tab);
+      if (Math.abs(diff) > 0.001) return diff;
+      if (crossSubj && si(a)!==si(b)) return si(a)-si(b);
+      return vi(a)!==vi(b) ? vi(a)-vi(b) : ti(a)-ti(b);
+    });
+  } else {
+    // default: 科目 → 年級 → 種類
+    arr.sort((a,b) => {
+      if (crossSubj && si(a)!==si(b)) return si(a)-si(b);
+      return vi(a)!==vi(b) ? vi(a)-vi(b) : ti(a)-ti(b);
+    });
+  }
+  return arr;
+}
+
+// ── RENDER ──
+function render() {
+  document.getElementById('hdrSub').textContent =
+    `庫存：${invDate}${invLoaded?'':'（內建）'}　修訂：${revLabel}${revLoaded?'':'（內建）'}`;
+  ['ref','nsp','sup'].forEach(tab => {
+    const prods = prodsFor(tab);
+    document.getElementById('cnt-'+tab).textContent = prods.length;
+    renderPanel(tab, prods);
+  });
+}
+
+function renderPanel(tab, prods) {
+  const isCrossSubj = COND_FILTERS.includes(activeFilter) || activeFilter === 'all';
+  const isMultiVer  = tab === 'nsp' || tab === 'sup'; // 多版次加總邏輯
+  const cat = tab === 'sup' ? '版版補充' : '參考書';
+  const tabActCls   = { ref:'a-ref', nsp:'a-nsp', sup:'a-sup' };
+
+  // ── Subject cards ──
+  const subjects = [...new Set(
+    PRODS.filter(p => {
+      if (tab==='ref') return p.category==='參考書' && !p.name.includes('非賣品');
+      if (tab==='nsp') return p.category==='參考書' && p.name.includes('非賣品');
+      return p.category==='版版補充';
+    }).map(p => p.subject)
+  )].sort((a,b) => SUBJ_SEQ.indexOf(a) - SUBJ_SEQ.indexOf(b));
+
+  const allTabProds = PRODS.filter(p => {
+    if (tab==='ref') return p.category==='參考書' && !p.name.includes('非賣品') && (activeSem==='all'||p.semester==='通用'||p.semester===activeSem);
+    if (tab==='nsp') return p.category==='參考書' && p.name.includes('非賣品') && (activeSem==='all'||p.semester==='通用'||p.semester===activeSem);
+    return p.category==='版版補充' && (activeSem==='all'||p.semester==='通用'||p.semester===activeSem);
+  });
+
+  let cardsHtml = '';
+  for (const subj of subjects) {
+    const sp = allTabProds.filter(p => p.subject === subj);
+    let zero=0, low=0, scrap=0, ok=0;
+    for (const p of sp) {
+      const hasSc = p.versions.some(v => isScrap(p.sku, v.ver, cat) && v.avail > 0);
+      if (hasSc) scrap++;
+      const st = isMultiVer ? multiSt(p, tab).st
+        : (() => { const th=getTh(p.sku,tab); return p.versions.length ? stOf(p.versions[0].avail, th, isScrap(p.sku, p.versions[0].ver, cat)) : '正常'; })();
+      if (st==='庫存耗盡') zero++;
+      else if (st==='低庫存') low++;
+      else ok++;
+    }
+    const isAct = activeSubj[tab] === subj;
+    cardsHtml += `<div class="scard${isAct?' '+tabActCls[tab]:''}" onclick="clickSubj('${tab}','${subj}')">
+      <div class="scard-name">${subj}</div>
+      <div class="scard-stats">
+        ${zero>0?`<span class="ss ss-r">耗盡 ${zero}</span>`:''}
+        ${low>0?`<span class="ss ss-o">低 ${low}</span>`:''}
+        ${scrap>0?`<span class="ss ss-p">報廢 ${scrap}</span>`:''}
+        ${zero===0&&low===0&&scrap===0?`<span class="ss ss-g">正常 ${ok}</span>`:''}
+      </div>
+      <div class="scard-tot">${sp.length} 項</div>
+    </div>`;
+  }
+  document.getElementById('sr-'+tab).innerHTML = cardsHtml;
+
+  // ── Detail table ──
+  const detEl = document.getElementById('det-'+tab);
+
+  // Decide what to show
+  // isCrossSubj = 狀態篩選(低庫存/耗盡等) 或 全部
+  // activeSubj = 使用者有點科目卡片的話，進一步縮小到該科目
+  let showProds;
+  const curSubj = activeSubj[tab];
+  if (isCrossSubj) {
+    // 有點科目卡片 → 只顯示該科目；沒點 → 全部
+    const filtered = curSubj ? prods.filter(p => p.subject === curSubj) : prods;
+    showProds = sortProds([...filtered], !curSubj, tab);
+  } else if (!curSubj) {
+    detEl.innerHTML = `<div class="empty">👆 點擊上方科目卡片查看明細</div>`;
+    return;
+  } else {
+    showProds = sortProds(prods.filter(p => p.subject === curSubj), false, tab);
+  }
+
+  if (!showProds.length) {
+    detEl.innerHTML = `<div class="empty">${isCrossSubj ? '目前沒有符合條件的品項 👌' : '此科目無符合條件的品項'}</div>`;
+    return;
+  }
+
+  // Count badges
+  let exCnt=0, lowCnt=0, scrapCnt=0;
+  for (const p of showProds) {
+    const hasSc = p.versions.some(v => isScrap(p.sku, v.ver, cat) && v.avail > 0);
+    if (hasSc) scrapCnt++;
+    const st = isMultiVer ? multiSt(p, tab).st
+      : (() => { const th=getTh(p.sku,tab); return p.versions.length ? stOf(p.versions[0].avail, th, isScrap(p.sku, p.versions[0].ver, cat)) : '正常'; })();
+    if (st==='庫存耗盡') exCnt++;
+    else if (st==='低庫存') lowCnt++;
+  }
+
+  const title = curSubj ? (curSubj + '　') : (isCrossSubj ? activeFilter : (activeSubj[tab] + '　'));
+  const thRow = tab==='ref'
+    ? `<th>品項</th><th>用途</th><th>版次</th><th>庫存量</th><th>警戒值</th><th>狀態</th>`
+    : `<th>品項</th><th>版次（可用）</th><th>合計可用庫存</th><th>警戒值</th><th>狀態</th>`;
+
+  const rows = showProds.map(p => tab==='ref' ? buildRefRow(p, isCrossSubj) : buildMultiRow(p, tab, isCrossSubj)).join('');
+
+  detEl.innerHTML = `<div class="tsec">
+    <div class="tsec-hdr">
+      <span class="tsec-title">${title}<span style="font-weight:400;color:var(--sub);font-size:12px">${cat}</span></span>
+      ${scrapCnt>0?`<span class="bdg b-p">⚠ 報廢有庫存 ${scrapCnt}</span>`:''}
+      ${exCnt>0?`<span class="bdg b-r">耗盡 ${exCnt}</span>`:''}
+      ${lowCnt>0?`<span class="bdg b-o">低庫存 ${lowCnt}</span>`:''}
+      <span class="bdg b-g">${showProds.length} 項</span>
+    </div>
+    <table><thead><tr>${thRow}</tr></thead><tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+// ── ROW BUILDERS ──
+function vTagHtml(sku, ver, cat) {
+  const sc = isScrap(sku, ver, cat);
+  const t  = getT(sku, ver, cat);
+  let cls = ({31:'v31',41:'v41',51:'v51',21:'v21',42:'v21'}[String(ver)]||'vx');
+  let icon = '';
+  if (sc)              { cls += ' t-scrap'; icon = ' 🗑'; }
+  else if (t==='限區')  { cls += ' t-lim';   icon = ' ⚠'; }
+  else if (t==='混用'||t==='新版') { cls += ' t-mix'; icon = ' ✓'; }
+  return `<span class="vtag ${cls}">${ver}${icon}</span>`;
+}
+
+function pillHtml(st) {
+  const m = {庫存耗盡:'p-r',低庫存:'p-o',正常:'p-g',報廢:'p-s'};
+  return `<span class="pill ${m[st]||'p-g'}">${st}</span>`;
+}
+
+function subjTagHtml(subj, show) {
+  return show ? `<span class="subj-tag">${subj}</span>` : '';
+}
+
+// 參考書：單版次
+function buildRefRow(p, crossSubj) {
+  const th = getTh(p.sku, 'ref');
+  return p.versions.map(v => {
+    const sc = isScrap(p.sku, v.ver, '參考書');
+    const st = stOf(v.avail, th, sc);
+    const pct = th>0 ? Math.min(100, Math.round(v.avail/th*100)) : 0;
+    const snCls = sc?'n-s':st==='庫存耗盡'?'n-z':st==='低庫存'?'n-l':'n-o';
+    const barCls = sc?'bi-s':st==='庫存耗盡'?'bi-r':st==='低庫存'?'bi-o':'bi-g';
+    const rowCls = (sc&&v.avail>0)?'row-scrap':(st==='低庫存'||st==='庫存耗盡'?'row-alert':'');
+    return `<tr class="${rowCls}">
+      <td><div class="pn">${subjTagHtml(p.subject,crossSubj)}${p.name}</div><div class="psku">${p.sku}</div></td>
+      <td><span class="use ${p.usage==='學用'?'u-s':'u-t'}">${p.usage}</span></td>
+      <td>${vTagHtml(p.sku, v.ver, '參考書')}</td>
+      <td class="stk"><div class="sw"><span class="sn ${snCls}">${v.avail.toLocaleString()}</span>
+        <div class="bar"><div class="bi ${barCls}" style="width:${pct}%"></div></div></div></td>
+      <td><div class="tiw"><input class="ti" type="number" value="${th}" min="1"
+        onchange="setRowTh('${p.sku}',this.value)"
+        onkeydown="if(event.key==='Enter')setRowTh('${p.sku}',this.value)">
+        <span style="font-size:10px;color:var(--lgt)">本</span></div></td>
+      <td>${pillHtml(st)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// 版版補充 / 非賣品：多版次加總
+function buildMultiRow(p, tab, crossSubj) {
+  const cat = tab==='sup' ? '版版補充' : '參考書';
+  const { st, usable, th } = multiSt(p, tab);
+  const totalAvail = p.versions.reduce((s,v)=>s+v.avail,0);
+  const hasSc = p.versions.some(v=>isScrap(p.sku,v.ver,cat)&&v.avail>0);
+  const pct = th>0 ? Math.min(100,Math.round(usable/th*100)) : 0;
+  const snCls = st==='庫存耗盡'?'n-z':st==='低庫存'?'n-l':'n-o';
+  const barCls= st==='庫存耗盡'?'bi-r':st==='低庫存'?'bi-o':'bi-g';
+  const rowCls= hasSc?'row-scrap':(st==='低庫存'||st==='庫存耗盡'?'row-alert':'');
+
+  // Show only versions with stock (or all if all zero)
+  const dispVers = p.versions.filter(v=>v.avail>0);
+  const verTagsHtml = (dispVers.length ? dispVers : p.versions)
+    .map(v => vTagHtml(p.sku, v.ver, cat)).join(' ');
+
+  const did = `vd_${p.sku}`;
+  let detRows = '';
+  for (const v of p.versions) {
+    if (v.avail===0 && p.versions.some(vv=>vv.avail>0)) continue;
+    const sc = isScrap(p.sku, v.ver, cat);
+    const t  = getT(p.sku, v.ver, cat);
+    let vc = ({31:'v31',41:'v41',51:'v51',21:'v21',42:'v21'}[String(v.ver)]||'vx');
+    let icon = '';
+    if (sc) { vc+=' t-scrap'; icon=' 🗑'; }
+    else if (t==='新版'||t==='混用') { vc+=' t-mix'; icon=' ✓'; }
+    detRows += `<div class="vd-row">
+      <div class="vd-ver"><span class="vtag ${vc}" style="font-size:10px">${v.ver}${icon}</span></div>
+      <div style="font-size:12px;${sc?'text-decoration:line-through;opacity:.6;color:var(--red)':''}">
+        ${v.avail.toLocaleString()} 本
+        <span style="font-size:10px;color:${sc?'var(--red)':'var(--grn)'};margin-left:4px">${sc?'✗ 不計入':'✓ 計入'}</span>
+      </div></div>`;
+  }
+  if (!detRows) detRows = `<div style="font-size:12px;color:var(--lgt);padding:6px">所有版次庫存為零</div>`;
+
+  const dispName = tab==='nsp' ? p.name.replace('非賣品','') : p.name;
+  const nspBadge = tab==='nsp' ? `<span style="font-size:10px;color:var(--lgt);font-weight:400"> 非賣品</span>` : '';
+
+  return `<tr class="${rowCls}">
+    <td><div class="pn">${subjTagHtml(p.subject,crossSubj)}${dispName}${nspBadge}</div><div class="psku">${p.sku}</div></td>
+    <td><div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center">
+      ${verTagsHtml}
+      <button class="exp-btn" onclick="toggleVD('${did}',this)">▶ 版次明細</button>
+    </div></td>
+    <td class="stk"><div class="sw">
+      <span class="sn ${snCls}">${usable.toLocaleString()}</span>
+      ${hasSc?`<span style="font-size:10px;color:var(--lgt)">/${totalAvail.toLocaleString()}總</span>`:''}
+      <div class="bar"><div class="bi ${barCls}" style="width:${pct}%"></div></div>
+    </div></td>
+    <td><div class="tiw"><input class="ti" type="number" value="${th}" min="1"
+      onchange="setRowTh('${p.sku}',this.value)"
+      onkeydown="if(event.key==='Enter')setRowTh('${p.sku}',this.value)">
+      <span style="font-size:10px;color:var(--lgt)">本</span></div></td>
+    <td>${pillHtml(st)}${hasSc?`<br><span class="pill p-p" style="margin-top:3px;font-size:9px">⚠報廢有庫存</span>`:''}</td>
+  </tr>
+  <tr style="display:none" id="tr_${did}"><td colspan="5" style="padding:0">
+    <div class="vd" id="${did}">${detRows}</div>
+  </td></tr>`;
+}
+
+function toggleVD(id, btn) {
+  const el = document.getElementById(id);
+  const tr = document.getElementById('tr_'+id);
+  const open = el.classList.toggle('open');
+  tr.style.display = open ? '' : 'none';
+  btn.textContent = open ? '▼ 收起' : '▶ 版次明細';
+}
+
+// ── FILE LOADING ──
+function loadInv(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const dm = file.name.match(/(\d{4,8})/);
+  if (dm) { const d=dm[1].padStart(8,'0'); invDate=`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`; }
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext==='xls'||ext==='xlsx') {
+    const r=new FileReader(); r.onload=ev=>{
+      const b=new Uint8Array(ev.target.result);
+      if (b[0]===0xFF&&b[1]===0xFE) parseSAP(new TextDecoder('utf-16le').decode(ev.target.result));
+      else doXLSX(file);
+    }; r.readAsArrayBuffer(file);
+  } else { const r=new FileReader(); r.onload=ev=>parseCSV(ev.target.result); r.readAsText(file,'Big5'); }
+  e.target.value='';
+}
+
+function parseSAP(text) {
+  const inv={};
+  for (const line of text.split('\r\n')) {
+    const c=line.split('\t');
+    const sku=(c[0]||'').replace(/\uFEFF/g,'').trim();
+    if (!sku||!/^\d{10}$/.test(sku)) continue;
+    const ver=(c[7]||'').trim();
+    const av=Math.max(0,parseInt(String(c[12]||0).replace(/,/g,''))||0);
+    if (!inv[sku]) inv[sku]={};
+    inv[sku][ver]=(inv[sku][ver]||0)+av;
+  }
+  applyInv(inv);
+}
+function parseCSV(text) {
+  const lines=text.split('\n').filter(l=>l.trim());
+  const hdr=lines[0].split(',').map(h=>h.trim());
+  const iS=hdr.findIndex(h=>h.includes('物料號碼')), iV=hdr.findIndex(h=>h.includes('版次'));
+  const iA=hdr.findIndex(h=>h.includes('庫存量')||h.includes('可用'));
+  if (iS<0||iA<0){alert('找不到欄位');return;}
+  const inv={};
+  for (const l of lines.slice(1)) {
+    const c=l.split(',');
+    const sku=(c[iS]||'').trim(), ver=(c[iV]||'').trim();
+    const av=parseInt((c[iA]||'0').replace(/,/g,''))||0;
+    if (!sku) continue;
+    if (!inv[sku]) inv[sku]={};
+    inv[sku][ver]=(inv[sku][ver]||0)+av;
+  }
+  applyInv(inv);
+}
+function doXLSX(file) {
+  const go=()=>{ const r=new FileReader(); r.onload=ev=>{
+    const wb=XLSX.read(ev.target.result,{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1});
+    const hdr=rows[0].map(h=>String(h||'').trim());
+    const iS=hdr.findIndex(h=>h.includes('物料號碼')), iV=hdr.findIndex(h=>h.includes('版次'));
+    const iA=hdr.findIndex(h=>h.includes('庫存量')||h.includes('可用'));
+    if (iS<0||iA<0){alert('找不到欄位');return;}
+    const inv={};
+    for (const rr of rows.slice(1)) {
+      const sku=String(rr[iS]||'').trim(), ver=String(rr[iV]||'').trim();
+      const av=parseInt(String(rr[iA]||0).replace(/,/g,''))||0;
+      if (!sku) continue;
+      if (!inv[sku]) inv[sku]={};
+      inv[sku][ver]=(inv[sku][ver]||0)+av;
+    }
+    applyInv(inv);
+  }; r.readAsArrayBuffer(file); };
+  if (typeof XLSX==='undefined'){const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=go;document.head.appendChild(s);}else go();
+}
+function applyInv(inv) {
+  let n=0;
+  for (const p of PRODS) {
+    const sk=inv[p.sku]; if (!sk) continue;
+    p.versions=p.versions.map(v=>({ver:v.ver, avail:sk[v.ver]!=null?sk[v.ver]:v.avail}));
+    n++;
+  }
+  invLoaded=true; render(); toast(`✅ 庫存更新：${n} 個料號`);
+}
+
+function loadRev(e) {
+  const file=e.target.files[0]; if (!file) return;
+  revLabel=file.name.replace(/\.xlsx$/,'');
+  const go=()=>{ const r=new FileReader(); r.onload=ev=>{
+    const wb=XLSX.read(ev.target.result,{type:'array'});
+    const newR={ref:{},supp:{}};
+    for (const sn of wb.SheetNames) {
+      const ws=wb.Sheets[sn];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true});
+      if (sn.includes('參考書')) parseRevRef(rows, newR.ref);
+      else if (sn.includes('版')||sn.includes('補充')) parseRevSupp(rows, newR.supp);
+    }
+    if (Object.keys(newR.ref).length>0||Object.keys(newR.supp).length>0) {
+      Object.assign(REV.ref, newR.ref); Object.assign(REV.supp, newR.supp);
+      revLoaded=true; render();
+      toast(`✅ 修訂對照表更新`);
+    } else toast('⚠ 找不到修訂資料，請確認工作表名稱');
+  }; r.readAsArrayBuffer(file); };
+  if (typeof XLSX==='undefined'){const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=go;document.head.appendChild(s);}else go();
+  e.target.value='';
+}
+function parseRevRef(rows, out) {
+  for (const r of rows.slice(6)) {
+    const sS=String(r[3]||'').trim(), sT=String(r[4]||'').trim();
+    if (!sS||sS==='-'||sS==='undefined') continue;
+    const entry={old_ver:String(r[10]||'').trim(), treatment:String(r[14]||'').trim(), new_ver:String(r[23]||'').trim()};
+    out[sS]=entry;
+    if (sT&&sT!=='-'&&sT!=='undefined') out[sT]=entry;
+  }
+}
+function parseRevSupp(rows, out) {
+  let hi=-1;
+  for (let i=0;i<rows.length;i++) if (String(rows[i][4]||'')===String(11)){hi=i;break;}
+  if (hi<0) return;
+  const VC={'11':{混用:13,限區:14,報廢:15},'21':{混用:16,限區:17,報廢:18},'31':{混用:19,限區:20,報廢:21},'41':{混用:22,限區:23,報廢:24}};
+  for (const r of rows.slice(hi+1)) {
+    const sku=String(r[3]||'').trim();
+    if (!sku||sku==='undefined'||sku.length<8) continue;
+    const vm={};
+    for (const [ver,cols] of Object.entries(VC)) {
+      for (const [action,col] of Object.entries(cols)) {
+        const val=r[col];
+        if (val&&String(val).trim()&&!String(val).includes('openpyxl')){vm[ver]=action;break;}
+      }
+    }
+    if (Object.keys(vm).length>0) out[sku]=vm;
+  }
+}
+
+// INIT
+render();
+</script>
+</body>
+</html>
