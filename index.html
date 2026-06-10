@@ -186,9 +186,9 @@ td{padding:9px 13px;font-size:13px;vertical-align:middle}
     <div class="hdr-sub" id="hdrSub">內建資料：庫存 2026.06.09 ／ 修訂對照 115(一)</div>
   </div>
   <div class="hdr-btns">
-    <button class="hbtn hbtn-inv" onclick="document.getElementById('fInv').click()">📂 載入庫存 (.xls)</button>
+    <button class="hbtn hbtn-inv" onclick="document.getElementById('fInv').click()">📂 載入庫存 (.xls / .txt)</button>
     <button class="hbtn hbtn-rev" onclick="document.getElementById('fRev').click()">📋 載入修訂對照表 (.xlsx)</button>
-    <input type="file" id="fInv" accept=".xls,.xlsx,.csv" onchange="loadInv(event)">
+    <input type="file" id="fInv" accept=".xls,.xlsx,.csv,.txt" onchange="loadInv(event)">
     <input type="file" id="fRev" accept=".xlsx" onchange="loadRev(event)">
   </div>
 </div>
@@ -720,7 +720,10 @@ function loadInv(e) {
   const dm = file.name.match(/(\d{4,8})/);
   if (dm) { const d=dm[1].padStart(8,'0'); invDate=`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`; }
   const ext = file.name.split('.').pop().toLowerCase();
-  if (ext==='xls'||ext==='xlsx') {
+  if (ext==='txt') {
+    // SAP 匯出的 Big5 TAB 分隔文字，格式與 .xls 相同
+    const r=new FileReader(); r.onload=ev=>parseSAP_big5(ev.target.result); r.readAsText(file,'Big5');
+  } else if (ext==='xls'||ext==='xlsx') {
     const r=new FileReader(); r.onload=ev=>{
       const b=new Uint8Array(ev.target.result);
       if (b[0]===0xFF&&b[1]===0xFE) parseSAP(new TextDecoder('utf-16le').decode(ev.target.result));
@@ -728,6 +731,12 @@ function loadInv(e) {
     }; r.readAsArrayBuffer(file);
   } else { const r=new FileReader(); r.onload=ev=>parseCSV(ev.target.result); r.readAsText(file,'Big5'); }
   e.target.value='';
+}
+
+function parseSAP_big5(text) {
+  // SAP .txt Big5 格式：TAB 分隔，col0=料號, col3=品名, col7=版次, col12=可用量
+  // 與 UTF-16 .xls 格式相同，直接複用 parseSAP 邏輯
+  parseSAP(text.replace(/\r/g, ''));
 }
 
 function parseSAP(text) {
