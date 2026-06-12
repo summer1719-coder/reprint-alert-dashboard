@@ -94,6 +94,15 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--txt)
 .main{padding:16px 24px}
 .panel{display:none}.panel.active{display:block}
 
+/* GRADE FILTER */
+.grade-row{background:var(--sur);border-bottom:1px solid var(--brd);padding:7px 24px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.grade-lbl{font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap;margin-right:2px}
+.gb{padding:4px 13px;border-radius:20px;border:1px solid var(--brd);background:#fff;
+  font-size:12px;cursor:pointer;font-family:inherit;color:var(--sub);transition:all .15s;white-space:nowrap}
+.gb:hover{border-color:var(--acc);color:var(--acc)}
+.gb.on{background:var(--hdr);color:#fff;border-color:var(--hdr);font-weight:700}
+
 /* SUBJECT CARDS */
 .subj-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
 .scard{background:var(--sur);border:2px solid var(--brd);border-radius:10px;padding:12px 16px;cursor:pointer;
@@ -260,6 +269,16 @@ td{padding:9px 13px;font-size:13px;vertical-align:middle}
   <input class="srch" id="sq" type="text" placeholder="🔍 搜尋名稱或料號…" oninput="render()">
 </div>
 
+<div class="grade-row" id="gradeRow">
+  <span class="grade-lbl">年級</span>
+  <button class="gb on" id="gb-all" onclick="setGrade(null,this)">全部</button>
+  <button class="gb" onclick="setGrade('1',this)">1年級</button>
+  <button class="gb" onclick="setGrade('2',this)">2年級</button>
+  <button class="gb" onclick="setGrade('3',this)">3年級</button>
+  <button class="gb" onclick="setGrade('4',this)">4年級</button>
+  <button class="gb" onclick="setGrade('5',this)">5年級</button>
+  <button class="gb" onclick="setGrade('6',this)">6年級</button>
+</div>
 <div class="main">
   <div class="panel active" id="panel-ref">
     <div class="subj-row" id="sr-ref"></div>
@@ -286,6 +305,7 @@ let activeSem = 'all';
 let activeFilter = 'all';
 let thresholds = {};
 let activeSubj = { ref:null, nsp:null, sup:null };
+let activeGrade = null; // null = 全部, '1'~'6' or '首'
 let invDate = '2026.06.09';
 let revLabel = '115(一)';
 let invLoaded = false, revLoaded = false;
@@ -369,6 +389,15 @@ function setSort(s, btn) {
   render();
 }
 
+function setGrade(g, btn) {
+  activeGrade = g;
+  document.querySelectorAll('.gb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  // Reset subject selection when grade changes
+  activeSubj = { ref:null, nsp:null, sup:null };
+  render();
+}
+
 function applyTh(type) {
   const ids = {ref:'gRef', nsp:'gNsp', sup:'gSup'};
   const cats = {ref:'參考書', nsp:'nsp', sup:'版版補充'};
@@ -413,6 +442,11 @@ function prodsFor(tab) {
     }
     // semester
     if (activeSem !== 'all' && p.semester !== '通用' && p.semester !== activeSem) return false;
+    // grade filter
+    if (activeGrade !== null) {
+      const gradeNum = p.vol ? p.vol.replace(/[上下]/g,'')[0] : '';
+      if (gradeNum !== activeGrade) return false;
+    }
     // search
     if (q && !p.name.toLowerCase().includes(q) && !p.sku.includes(q)) return false;
     // usage filter
@@ -514,9 +548,11 @@ function renderPanel(tab, prods) {
   )].sort((a,b) => SUBJ_SEQ.indexOf(a) - SUBJ_SEQ.indexOf(b));
 
   const allTabProds = PRODS.filter(p => {
-    if (tab==='ref') return p.category==='參考書' && !p.name.includes('非賣品') && (activeSem==='all'||p.semester==='通用'||p.semester===activeSem);
-    if (tab==='nsp') return p.category==='參考書' && p.name.includes('非賣品') && (activeSem==='all'||p.semester==='通用'||p.semester===activeSem);
-    return p.category==='版版補充' && (activeSem==='all'||p.semester==='通用'||p.semester===activeSem);
+    const semOk = activeSem==='all'||p.semester==='通用'||p.semester===activeSem;
+    const gradeOk = activeGrade === null || (p.vol && p.vol.replace(/[上下]/g,'')[0] === activeGrade);
+    if (tab==='ref') return p.category==='參考書' && !p.name.includes('非賣品') && semOk && gradeOk;
+    if (tab==='nsp') return p.category==='參考書' && p.name.includes('非賣品') && semOk && gradeOk;
+    return p.category==='版版補充' && semOk && gradeOk;
   });
 
   let cardsHtml = '';
